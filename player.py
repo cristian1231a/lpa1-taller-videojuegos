@@ -17,7 +17,6 @@ class Player(pygame.sprite.Sprite):
             for i in range(1, 9)  # Ajusta el rango según la cantidad de imágenes que tengas
         ]
 
-
         for frame in self.walk_frames:
             frame.set_colorkey(BLACK)
 
@@ -66,8 +65,6 @@ class Player(pygame.sprite.Sprite):
             self.speed_y = self.jump_power
             self.on_ground = False
             self.is_jumping = True
-
-            print(self.jump_frames)
 
 
         # APLICAR MOVIMIENTOS

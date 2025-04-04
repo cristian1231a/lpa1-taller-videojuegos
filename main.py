@@ -4,14 +4,12 @@ from player import Player
 from enemies import Enemies
 from background import Background
 from plat import Platform
+from lives import Lives
+from .settings import WIDTH , HEIGHT, FPS
+
+
 
 pygame.init()
-
-
-WIDTH = 800
-HEIGHT = 600
-BLACK = (0,0,0)
-WHITE = (255,255,255)
 
 
 pygame.mixer.init()
@@ -23,6 +21,7 @@ clock = pygame.time.Clock()
 background = Background()
 player = Player()
 platform = Platform(0, 0, WIDTH, HEIGHT)  # (x, y, ancho, alto) / PARA CREAR LA PLATAFORMA EN LA POSICION ESPECIFICA
+lives = Lives()
 
 
 
@@ -42,26 +41,39 @@ for i in range(2):
 
 running = True
 while running:
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
+    # --- 1. Manejo de eventos ---
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    all_sprites.update()
+    # --- 2. Actualizaciones de lógica del juego ---
 
-    # fill the screen with a color to wipe away anything from last frame
-    screen.fill((0, 0, 0))  # Opcional, limpia la pantalla antes de dibujar
-    background.draw(screen)  # Llamamos al método draw() en vez de usar screen.blit directamente
-    screen.blit(platform.image, platform.rect) #dibujar la base o la plataforma
+    # Actualizar jugador
+    player.update()
 
-    # RENDER YOUR GAME HERE
-    all_sprites.draw(screen)
+    # Actualizar enemigos (y verificar colisión individual)
+    for enemy in enemies_list:
+        enemy.attacking = pygame.sprite.collide_rect(player, enemy)
+        enemy.update(player)
 
-    # flip() the display to put your work on screen
+    # Otras colisiones globales (si necesitás acciones adicionales)
+    hits = pygame.sprite.spritecollide(player, enemies_list, False)
+    if hits:
+        print("¡Colisión detectada!")
+
+    # Actualizar otras entidades si tenés más (proyectiles, power-ups, etc.)
+
+    # --- 3. Dibujar todo en pantalla ---
+    screen.fill((0, 0, 0))  # Limpia la pantalla (negro de fondo)
+    background.draw(screen)  # Dibuja el fondo
+    screen.blit(platform.image, platform.rect)  # Dibuja la plataforma/base
+    lives.draw(screen)  # Dibuja vidas
+    all_sprites.draw(screen)  # Dibuja todos los sprites (jugador + enemigos)
+
+    # --- 4. Actualizar pantalla ---
     pygame.display.flip()
 
-
-    clock.tick(60)  # limits FPS to 60
+    # --- 5. Controlar la velocidad del juego (FPS) ---
+    clock.tick(FPS)  # Limita a 60 FPS
 
 pygame.quit()
