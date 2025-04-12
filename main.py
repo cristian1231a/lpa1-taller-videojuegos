@@ -5,7 +5,7 @@ from enemies import Enemies
 from background import Background
 from plat import Platform
 from lives import Lives
-from .settings import WIDTH , HEIGHT, FPS
+from settings import WIDTH , HEIGHT, FPS
 
 
 
@@ -49,7 +49,7 @@ while running:
     # --- 2. Actualizaciones de lógica del juego ---
 
     # Actualizar jugador
-    player.update()
+    player.update(enemies_list)
 
     # Actualizar enemigos (y verificar colisión individual)
     for enemy in enemies_list:
