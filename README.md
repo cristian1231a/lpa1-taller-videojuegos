@@ -106,7 +106,7 @@ El proyecto se dividirá en varias fases, comenzando con la creación de clases 
 
 ## Diseño
 
-![Diagrama de Clases](./docs/diagrama_de_clases_UML.png)
+![Diagrama de Clases](./docs/Diagrama_de_clases_UML.png)
 
 ## Instalación
 
