@@ -7,7 +7,8 @@
 
 ## Autor
 
-- [@estudiante](https://www.github.com/estudiante)
+- [@cristian1231a](https://github.com/cristian1231a)
+- [@DanielAngul0](https://github.com/DanielAngul0) 
 
 ## Descripción del Proyecto
 
@@ -105,7 +106,7 @@ El proyecto se dividirá en varias fases, comenzando con la creación de clases 
 
 ## Diseño
 
-![Diagrama de Clases](./docs/diagramas.png)
+![Diagrama de Clases](./docs/Diagrama_de_clases_UML.png)
 
 ## Instalación
 
