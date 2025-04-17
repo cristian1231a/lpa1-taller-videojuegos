@@ -1,0 +1,572 @@
+# jugador.py
+import pygame
+from entidad import Entidad
+from personaje import Personaje
+from sistema_combate import SistemaCombate
+
+# Configuración de dimensiones del jugador
+player_width = 60
+player_height = 80
+
+class Jugador(Personaje):
+    def __init__(self):
+        # ===============================
+        # CARGA DE ANIMACIONES (VISUALES)
+        # ===============================
+        self.walk_frames = [
+            pygame.transform.scale(
+                pygame.image.load(f"assets/img/player/walk/Walk{i}.png").convert(),
+                (player_width, player_height)
+            )
+            for i in range(1, 9)
+        ]
+        self.jump_frames = [
+            pygame.transform.scale(
+                pygame.image.load(f"assets/img/player/jump/Jump{i}.png").convert(),
+                (player_width, player_height)
+            )
+            for i in range(1, 9)
+        ]
+        self.attack_frames = [
+            pygame.transform.scale(
+                pygame.image.load(f"assets/img/player/attack1/Attack{i}.png").convert(),
+                (player_width, player_height)
+            )
+            for i in range(1, 5)
+        ]
+        
+        # Configuración de color clave para transparencia
+        for frame in self.walk_frames + self.jump_frames + self.attack_frames:
+            frame.set_colorkey((0, 0, 0))
+        
+        # Atributos heredados de Personaje
+        super().__init__(
+            x=400,  # Posición inicial X
+            y=500,  # Posición inicial Y
+            color=(255, 255, 255),  # Color dummy
+            imagen=self.walk_frames[0],
+            puntos_vida=100,
+            ataque=15,
+            defensa=5
+        )
+        
+        # ===============================
+        # ATRIBUTOS ESPECÍFICOS DEL JUGADOR
+        # ===============================
+        self.nivel = 1
+        self.experiencia = 0
+        self.dinero = 100
+        self.capas_defensa = 0
+        self.puntos_vida_max = 100
+        self.puntos_vida = self.puntos_vida_max
+        self.tipo = "Jugador"
+        
+        # ===============================
+        # FÍSICA Y MOVIMIENTO
+        # ===============================
+        self.speed_x = 0
+        self.speed_y = 0
+        self.gravity = 0.8
+        self.jump_power = -16
+        self.on_ground = True
+        
+        # ===============================
+        # ANIMACIONES Y ESTADOS
+        # ===============================
+        self.frame_count = 0
+        self.animation_speed = 8
+        self.current_animation = self.walk_frames
+        self.image_index = 0
+        self.facing_right = True
+        self.is_jumping = False
+        self.is_attacking = False
+        self.is_dead = False
+
+    def obtener_hitbox_ataque(self):
+        """Retorna el área de ataque del jugador"""
+        offset = 30
+        if self.facing_right:
+            return pygame.Rect(self.rect.right, self.rect.top, offset, self.rect.height)
+        else:
+            return pygame.Rect(self.rect.left - offset, self.rect.top, offset, self.rect.height)
+
+    def update(self, enemies):
+        """Actualiza el estado del jugador cada frame"""
+        if self.is_dead:
+            return
+
+        self.handle_input()
+        self.apply_physics(enemies)  # Pasar la lista de enemigos
+        self.handle_animations()
+        self.handle_combat(enemies)
+
+    def handle_input(self):
+        """Procesa la entrada del usuario"""
+        keys = pygame.key.get_pressed()
+        
+        # Movimiento horizontal
+        self.speed_x = 0
+        if keys[pygame.K_a]:
+            self.speed_x = -5
+            self.facing_right = False
+        if keys[pygame.K_d]:
+            self.speed_x = 5
+            self.facing_right = True
+            
+        # Salto
+        if keys[pygame.K_w] and self.on_ground:
+            self.speed_y = self.jump_power
+            self.on_ground = False
+            self.is_jumping = True
+            
+        # Ataque
+        if keys[pygame.K_SPACE] and not self.is_attacking:
+            self.is_attacking = True
+            self.frame_count = 0
+            self.image_index = 0
+
+    def apply_physics(self, enemies):
+        """Aplica física y movimiento con detección de colisiones"""
+        # Guardar posición previa
+        prev_x = self.rect.x
+        prev_y = self.rect.y
+
+        # Movimiento horizontal
+        self.rect.x += self.speed_x
+        
+        # Verificar colisiones horizontales con enemigos
+        for enemy in enemies:
+            if self.rect.colliderect(enemy.rect):
+                self.rect.x = prev_x
+                break
+
+        # Movimiento vertical y gravedad
+        self.rect.y += self.speed_y
+        self.speed_y += self.gravity
+        
+        # Verificar colisiones verticales con enemigos
+        for enemy in enemies:
+            if self.rect.colliderect(enemy.rect):
+                self.rect.y = prev_y
+                self.speed_y = 0
+                break
+
+        # Limites de pantalla
+        if self.rect.left < 0:
+            self.rect.left = 0
+        if self.rect.right > 800:
+            self.rect.right = 800
+            
+        # Colisión con el suelo
+        if self.rect.bottom >= 600:
+            self.rect.bottom = 600
+            self.speed_y = 0
+            self.on_ground = True
+            self.is_jumping = False
+
+    def handle_animations(self):
+        """Maneja las transiciones de animación"""
+        self.frame_count += 1
+        
+        if self.is_attacking:
+            self.current_animation = self.attack_frames
+            self.animation_speed = 5
+        elif self.is_jumping:
+            self.current_animation = self.jump_frames
+            self.animation_speed = 6
+        else:
+            self.current_animation = self.walk_frames
+            self.animation_speed = 8
+        
+        if self.frame_count >= self.animation_speed:
+            self.frame_count = 0
+            self.image_index = (self.image_index + 1) % len(self.current_animation)
+            
+            if self.is_attacking and self.image_index == len(self.current_animation) - 1:
+                self.is_attacking = False
+                self.current_animation = self.walk_frames
+                self.image_index = 0
+        
+        current_frame = self.current_animation[self.image_index]
+        self.image = pygame.transform.flip(current_frame, not self.facing_right, False)
+
+    def handle_combat(self, enemies):
+        """Maneja las interacciones de combate"""
+        if self.is_attacking:
+            attack_hitbox = self.obtener_hitbox_ataque()
+            for enemy in enemies:
+                if attack_hitbox.colliderect(enemy.rect):
+                    SistemaCombate.calcular_daño(self, enemy)
+
+    def recibir_daño(self, dano: int):
+        """Maneja la recepción de daño"""
+        if self.is_dead or self.capas_defensa > 0:
+            if self.capas_defensa > 0:
+                self.capas_defensa -= 1
+                print("¡Escudo activo! Capas restantes:", self.capas_defensa)
+            return
+
+        dano_final = max(0, dano - self.defensa)
+        self.puntos_vida -= dano_final
+        print(f"¡Daño recibido! Salud: {self.puntos_vida}/{self.puntos_vida_max}")
+        
+        self.image.fill((255, 0, 0, 50), special_flags=pygame.BLEND_RGBA_MULT)
+        
+        if self.puntos_vida <= 0:
+            self.morir()
+
+    def morir(self):
+        """Maneja la muerte del jugador"""
+        self.is_dead = True
+        self.image.fill((255, 0, 0, 100), special_flags=pygame.BLEND_RGBA_MULT)
+        print("¡Jugador eliminado!")
+
+    def curar_puntos_vida(self):
+        """Restaura toda la salud del jugador"""
+        self.puntos_vida = self.puntos_vida_max
+        print("Salud restaurada al máximo!")
+
+    def defender(self):
+        self.capas_defensa += 1
+        print("¡Escudo activado! Capas:", self.capas_defensa)
+
+    def recolectar(self, objeto):
+        self.inventario.append(objeto)
+        print("Objeto recolectado:", objeto.nombre)
+
+    def comprar(self, item, precio):
+        if self.dinero >= precio:
+            self.dinero -= precio
+            self.inventario.append(item)
+            print(f"¡{item.nombre} comprado!")
+        else:
+            print("¡Dinero insuficiente!")
+
+    def vender(self, item, precio):
+        if item in self.inventario:
+            self.dinero += precio
+            self.inventario.remove(item)
+            print(f"¡{item.nombre} vendido!")
+        else:
+            print("¡El ítem no está en el inventario!")
+
+    def equipar(self, armamento):
+        print(f"¡{armamento.nombre} equipado!")
+        self.ataque += armamento.aumento_ataque
+        self.defensa += armamento.aumento_defensa
+
+    def esquivar(self):
+        print("¡Esquiva realizada!")
+        self.speed_x *= 2
+
+    def pintar(self, screen: pygame.Surface) -> None:
+        screen.blit(self.image, self.rect)
+
+    def colision(self, otra: Entidad) -> bool:
+        return self.rect.colliderect(otra.rect)
+
+    def actualizar(self) -> None:
+        self.update([])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------------------------------
+Chat GPT / Jugador
+------------------------------------------------------------
+
+import pygame
+from entidad import Entidad
+from personaje import Personaje
+from sistema_combate import SistemaCombate  # Importamos el sistema de combate
+
+# --- CLASE: Jugador ---
+class Jugador(Personaje):
+    def __init__(self):
+        # ===============================
+        # CARGA DE ANIMACIONES (VISUALES)
+        # ===============================
+        self.walk_frames = [
+            pygame.image.load(f"assets/img/player/walk/Walk{i}.png").convert()
+            for i in range(1, 9)
+        ]
+        self.jump_frames = [
+            pygame.image.load(f"assets/img/player/jump/Jump{i}.png").convert()
+            for i in range(1, 9)
+        ]
+        self.attack_frames = [
+            pygame.image.load(f"assets/img/player/attack1/Attack{i}.png").convert()
+            for i in range(1, 5)
+        ]
+        for frame in self.walk_frames + self.jump_frames + self.attack_frames:
+            frame.set_colorkey((0, 0, 0))
+        imagen_inicial = self.walk_frames[0]
+
+        x_inicial = 800 // 2
+        y_inicial = 600 - 10
+        color_dummy = (255, 255, 255)
+        puntos_vida_inicial = 100
+        ataque_inicial = 10
+        defensa_inicial = 5
+        super().__init__(x_inicial, y_inicial, color_dummy, imagen_inicial,
+                         puntos_vida_inicial, ataque_inicial, defensa_inicial)
+
+        self.rect.centerx = x_inicial
+        self.rect.bottom = y_inicial
+
+        # ===============================
+        # CONTROLES DE MOVIMIENTO Y FÍSICA (VISUALES)
+        # ===============================
+        self.speed_x = 0
+        self.speed_y = 0
+        self.gravity = 1
+        self.jump_power = -15
+        self.on_ground = True
+
+        self.frame_count = 0
+        self.walk_animation_speed = 10
+        self.jump_animation_speed = 7
+        self.attack_animation_speed = 6
+        self.image_index = 0
+        self.is_jumping = False
+        self.is_attacking = False
+        self.facing_right = True
+        self.is_dead = False 
+        self.tipo = "Jugador"  # Atributo auxiliar para mensajes
+
+        # ===============================
+        # ATRIBUTOS DE LÓGICA DE JUEGO (DIAGRAMA UML)
+        # ===============================
+        self.nivel = 1
+        self.experiencia = 0
+        self.inventario = []
+        self.dinero = 100
+        self.capas_defensa = 0
+        self.puntos_vida_max = 100
+
+    def obtener_hitbox_ataque(self):
+        """
+        Devuelve un rectángulo extendido desde el rectángulo del jugador,
+        hacia la dirección en la que está mirando, para mejorar la detección
+        de colisiones en estado de ataque.
+        """
+        extension = 20  # cantidad de pixeles extra para el hitbox de ataque
+        if self.facing_right:
+            return pygame.Rect(self.rect.right, self.rect.top, extension, self.rect.height)
+        else:
+            return pygame.Rect(self.rect.left - extension, self.rect.top, extension, self.rect.height)
+
+    def update(self, enemies_list):
+        keystate = pygame.key.get_pressed()
+
+        self.speed_x = 0
+        if keystate[pygame.K_LEFT]:
+            self.speed_x = -2
+            self.facing_right = False
+        if keystate[pygame.K_RIGHT]:
+            self.speed_x = 2
+            self.facing_right = True
+
+        if keystate[pygame.K_UP] and self.on_ground and not self.is_jumping:
+            self.speed_y = self.jump_power
+            self.on_ground = False
+            self.is_jumping = True
+
+        if keystate[pygame.K_SPACE] and not self.is_attacking:
+            self.atacar()
+
+        # Actualizamos la posición horizontal
+        self.rect.x += self.speed_x
+        for enemy in enemies_list:
+            if self.rect.colliderect(enemy.rect):
+                # Calculamos la diferencia horizontal entre el centro de enemy y jugador
+                dif = enemy.rect.centerx - self.rect.centerx
+                # Solo corregimos si el jugador se mueve hacia el enemigo
+                if self.speed_x > 0 and dif > 0:
+                    self.rect.right = enemy.rect.left
+                elif self.speed_x < 0 and dif < 0:
+                    self.rect.left = enemy.rect.right
+
+        self.rect.y += self.speed_y
+        if not self.on_ground:
+            self.speed_y += self.gravity
+        if self.rect.bottom >= 600 - 10:
+            self.rect.bottom = 600 - 10
+            self.speed_y = 0
+            self.on_ground = True
+            self.is_jumping = False
+
+        if self.rect.right > 800:
+            self.rect.right = 800
+        if self.rect.left < 0:
+            self.rect.left = 0
+
+        self.frame_count += 1
+        frame = None
+
+        if self.is_attacking:
+            if self.frame_count >= self.attack_animation_speed:
+                self.frame_count = 0
+                self.image_index += 1
+                if self.image_index < len(self.attack_frames):
+                    frame = self.attack_frames[self.image_index]
+                else:
+                    self.is_attacking = False
+                    self.image_index = 0
+        elif self.is_jumping:
+            if self.frame_count >= self.jump_animation_speed:
+                self.frame_count = 0
+                self.image_index = (self.image_index + 1) % len(self.jump_frames)
+            frame = self.jump_frames[self.image_index]
+        elif self.speed_x != 0:
+            if self.frame_count >= self.walk_animation_speed:
+                self.frame_count = 0
+                self.image_index = (self.image_index + 1) % len(self.walk_frames)
+            frame = self.walk_frames[self.image_index]
+        else:
+            frame = self.walk_frames[0]
+            self.frame_count = 0
+            self.image_index = 0
+
+        if frame:
+            if not self.facing_right:
+                self.image = pygame.transform.flip(frame, True, False)
+            else:
+                self.image = frame
+
+        # Si está en estado de ataque, usar el hitbox extendido para detectar colisiones
+        if self.is_attacking:
+            hitbox = self.obtener_hitbox_ataque()
+            for enemy in enemies_list:
+                if hitbox.colliderect(enemy.rect):
+                    SistemaCombate.calcular_daño(self, enemy)
+
+    def atacar(self):
+        self.is_attacking = True
+        self.frame_count = 0
+        self.image_index = 0
+        print("Jugador ataca.")
+
+    def defender(self):
+        self.capas_defensa += 1
+        print("Jugador se defiende. Capas de defensa:", self.capas_defensa)
+
+    def recolectar(self, objeto):
+        self.inventario.append(objeto)
+        print("Objeto recolectado:", objeto)
+
+    def comprar(self, item, precio):
+        if self.dinero >= precio:
+            self.inventario.append(item)
+            self.dinero -= precio
+            print(f"Comprado {item} por {precio}. Dinero restante: {self.dinero}")
+        else:
+            print("Dinero insuficiente para comprar", item)
+
+    def vender(self, item, precio):
+        if item in self.inventario:
+            self.inventario.remove(item)
+            self.dinero += precio
+            print(f"Vendido {item} por {precio}. Dinero actual: {self.dinero}")
+        else:
+            print("El ítem no se encuentra en el inventario.")
+
+    def equipar(self, armamento):
+        print(f"Equipando {armamento}")
+
+    def esquivar(self):
+        print("Jugador esquiva el ataque.")
+
+    def recibir_daño(self, dano: int):
+        daño_reducido = dano - (self.capas_defensa * 2)
+        if daño_reducido < 0:
+            daño_reducido = 0
+        self.puntos_vida -= daño_reducido
+        print(f"Jugador recibe {daño_reducido} puntos de daño. Salud actual: {self.puntos_vida}")
+        if self.puntos_vida <= 0:
+            self.puntos_vida = 0
+            print("El jugador ha sido derrotado.")
+
+    def curar_puntos_vida(self):
+        self.puntos_vida = self.puntos_vida_max
+        print("Salud restaurada al máximo:", self.puntos_vida)
+
+    def pintar(self, screen: pygame.Surface) -> None:
+        screen.blit(self.image, self.rect)
+
+    def colision(self, otra: Entidad) -> bool:
+        return self.rect.colliderect(otra.rect)
+
+    def actualizar(self) -> None:
+        self.update([])
