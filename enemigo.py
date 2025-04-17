@@ -1,5 +1,5 @@
 import pygame, random
-from configuraciones import WIDTH, HEIGHT, BLACK, WHITE
+from configuracion import WIDTH, HEIGHT, BLACK, WHITE
 from personaje import Personaje
 from sistema_combate import SistemaCombate
 

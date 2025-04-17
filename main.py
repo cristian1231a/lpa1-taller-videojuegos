@@ -1,7 +1,7 @@
 # programa principal
 import pygame
 import sys
-from configuraciones import WIDTH, HEIGHT, FPS
+from configuracion import WIDTH, HEIGHT, FPS
 from jugador import Jugador
 from enemigo import Enemigo
 from fondo import Fondo
