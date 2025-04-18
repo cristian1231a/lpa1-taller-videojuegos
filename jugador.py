@@ -107,10 +107,9 @@ class Jugador(Personaje):
         if keystate[pygame.K_RIGHT]:
             self.speed_x = 2
             self.facing_right = True
-        if keystate[pygame.K_UP] and self.on_ground and not self.is_jumping:
-            self.speed_y = self.jump_power
-            self.on_ground = False
-            self.is_jumping = True
+        # Invocara al metodo esquivar en el salto
+        if keystate[pygame.K_UP] and self.on_ground:
+            self.esquivar()
         if keystate[pygame.K_SPACE] and not self.is_attacking:
             self.atacar()
 
@@ -179,9 +178,17 @@ class Jugador(Personaje):
         self.image_index = 0
         self.daño_aplicado = False  # ← permite ataque nuevo
         print("Jugador ataca.")
+        
+    def esquivar(self):
+        if self.on_ground and not self.is_jumping:
+            self.speed_y = self.jump_power
+            self.on_ground = False
+            self.is_jumping = True
+            print("¡Jugador obtiene inmunidad al estar en el aire!")
 
     def recibir_daño(self, dano: int):
-        if self.is_dead:
+        # Inmune si ya está muerto o está saltando
+        if self.is_dead or self.is_jumping:
             return
         self.puntos_vida = max(0, self.puntos_vida - dano)
         print(f"[DAÑO] Salud: {self.puntos_vida}/{self.puntos_vida_max}")
