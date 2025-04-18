@@ -7,6 +7,7 @@ from enemigo import Enemigo
 from fondo import Fondo
 from plataforma import Plataforma
 from corazones import Corazones
+from nivel_xp import NivelXP
 
 pygame.init()
 pygame.mixer.init()
@@ -20,6 +21,10 @@ fondo = Fondo()
 jugador = Jugador()
 plataforma = Plataforma(0, 0, HEIGHT, WIDTH)  # Plataforma en la parte inferior
 corazones = Corazones(jugador)  # Se pasa el jugador como referencia
+
+
+nivel = NivelXP()
+
 
 # Grupos de sprites
 all_sprites = pygame.sprite.Group()
@@ -69,6 +74,7 @@ while running:
     screen.fill((0, 0, 0))
     fondo.draw(screen)
     screen.blit(plataforma.image, plataforma.rect)
+    nivel.mostrar_barra_xp(screen, 300)
     all_sprites.draw(screen)
     pygame.display.flip()
     clock.tick(FPS)
