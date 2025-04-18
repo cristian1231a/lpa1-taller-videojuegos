@@ -17,6 +17,13 @@ class Jugador(Personaje):
             pygame.image.load(f"assets/img/player/attack1/Attack{i}.png").convert()
             for i in range(1, 5)
         ]
+        # Carga animación de protección
+        self.protect_frames = [
+            pygame.image.load(f"assets/img/player/protection/protection{i}.png").convert()
+            for i in range(1, 3)   # asumo 2 frames: protection1.png y protection2.png
+        ]
+        for f in self.protect_frames:
+            f.set_colorkey((0, 0, 0))
 
         sheet = pygame.image.load("assets/img/player/Dead.png").convert()
         sheet.set_colorkey((0, 0, 0))
@@ -66,6 +73,14 @@ class Jugador(Personaje):
         self.death_frame_index = 0
         self.death_frame_timer = 0
         self.death_frame_delay = self.death_animation_speed
+        
+        # Estado de defensa
+        self.is_defending = False
+        self.defend_frame_index = 0
+        self.defend_frame_timer = 0
+        self.defend_frame_delay = 8  # controla velocidad de la animación de bloqueo
+        # NUEVO: para detectar solo el flanco de bajada/subida de Z
+        self._z_was_pressed = False
 
         self.nivel = 1
         self.experiencia = 0
@@ -112,6 +127,24 @@ class Jugador(Personaje):
             self.esquivar()
         if keystate[pygame.K_SPACE] and not self.is_attacking:
             self.atacar()
+        # ---- DEFENSA con Z: solo en transición NO pulsado → pulsado ----
+        z_pressed = keystate[pygame.K_z]
+        # Si Z está presionado y condiciones permiten defensa
+        if z_pressed:
+            if not self.is_defending and self.on_ground and not self.is_attacking and not self.is_jumping:
+                self.is_defending = True
+                self.defend_frame_index = 0
+                self.defend_frame_timer = 0
+                print("¡Jugador se defiende!")
+        else:
+            if self.is_defending:
+                self.is_defending = False
+                self.defend_frame_index = 0
+                self.defend_frame_timer = 0
+                print("Jugador deja de defenderse.")
+
+        # Guardar el estado actual de Z para la siguiente iteración
+        self._z_was_pressed = z_pressed
 
         self.rect.x += self.speed_x
         for enemy in enemies_list:
@@ -138,7 +171,20 @@ class Jugador(Personaje):
 
         self.frame_count += 1
         frame = None
-        if self.is_attacking:
+        
+        if self.is_defending:
+            # Reproducir frames de protección
+            self.defend_frame_timer += 1
+            if self.defend_frame_timer >= self.defend_frame_delay:
+                self.defend_frame_timer = 0
+                self.defend_frame_index += 1
+                if self.defend_frame_index < len(self.protect_frames):
+                    frame = self.protect_frames[self.defend_frame_index]
+                else:
+                    # reiniciar animación si sigue defendiendo
+                    self.defend_frame_index = 0
+                    frame = self.protect_frames[self.defend_frame_index]
+        elif self.is_attacking:
             if self.frame_count >= self.attack_animation_speed:
                 self.frame_count = 0
                 self.image_index += 1
@@ -185,13 +231,29 @@ class Jugador(Personaje):
             self.on_ground = False
             self.is_jumping = True
             print("¡Jugador obtiene inmunidad al estar en el aire!")
+            
+    def defender(self):
+        # Solo desde el suelo, sin estar atacando ni saltando
+        if self.on_ground and not self.is_attacking and not self.is_jumping:
+            self.is_defending = True
+            self.defend_frame_index = 0
+            self.defend_frame_timer = 0
+            print("¡Jugador se defiende!")
+
 
     def recibir_daño(self, dano: int):
-        # Inmune si ya está muerto o está saltando
+
+        # inmune si salta o muerto
         if self.is_dead or self.is_jumping:
             return
+
+        # si está defendiendo, bloquea el 50 %
+        if self.is_defending:
+            dano = dano // 2
+
         self.puntos_vida = max(0, self.puntos_vida - dano)
         print(f"[DAÑO] Salud: {self.puntos_vida}/{self.puntos_vida_max}")
+
         if self.puntos_vida == 0:
             self.morir()
 
