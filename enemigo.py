@@ -34,7 +34,7 @@ class Enemigo(Personaje):
         y = self.rect.y
         color = WHITE
         puntos_vida = 2
-        ataque = 5
+        ataque = 6
         defensa = 11
         tipo = "Zombie"
         super().__init__(x, y, color, image_initial, puntos_vida, ataque, defensa)
