@@ -2,7 +2,7 @@ import pygame, random
 WIDTH = 800
 HEIGHT = 600
 
-class Background:
+class Fondo:
     def __init__(self):
         self.image = pygame.image.load("assets/img/scene/scene1/back.png").convert()
         self.scroll_x = 0  # Desplazamiento inicial
