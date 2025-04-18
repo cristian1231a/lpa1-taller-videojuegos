@@ -2,6 +2,7 @@ import pygame, random
 from configuracion import WIDTH, HEIGHT, BLACK, WHITE
 from personaje import Personaje
 from sistema_combate import SistemaCombate
+from entidad import PocionDeVida  # Ajusta la ruta si es diferente
 
 enemy_width = 60
 enemy_height = 80
@@ -160,6 +161,17 @@ class Enemigo(Personaje):
     def die(self):
         self.is_dead = True
         self.death_frame_index = 0
+
+        # Probabilidad de soltar una poción (ej. 40%)
+        # Probabilidad de soltar poción
+        if random.random() < 0.4:  # 30% de probabilidad
+            pocion = PocionDeVida()  # Crear una nueva poción
+            pocion.rect.center = self.rect.center  # Colocar la poción en la posición del enemigo
+
+            # Agregar la poción a los grupos
+            self.grupo_objetos.add(pocion)
+            self.grupo_todos.add(pocion)
+
 
     def pintar(self, screen: pygame.Surface) -> None:
         screen.blit(self.image, self.rect)

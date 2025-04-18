@@ -25,10 +25,11 @@ corazones = Corazones(jugador)  # Se pasa el jugador como referencia
 
 nivel = NivelXP()
 
-
 # Grupos de sprites
+objetos_sueltos = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 enemies_list = pygame.sprite.Group()
+
 all_sprites.add(jugador, corazones)
 
 # Crear enemigos con posiciones reales
@@ -43,8 +44,11 @@ for i in range(2):
         defensa=2,
         tipo="Zombie"
     )
+    enemigo.grupo_objetos = objetos_sueltos  # Asignar grupo_objetos
+    enemigo.grupo_todos = all_sprites  # Asignar grupo_todos
     all_sprites.add(enemigo)
     enemies_list.add(enemigo)
+
 
 running = True
 while running:
