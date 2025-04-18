@@ -1,79 +1,77 @@
 # programa principal
 import pygame
-from player import Player
-from enemies import Enemies
-from background import Background
-from plat import Platform
-from lives import Lives
-from settings import WIDTH , HEIGHT, FPS
-
-
+import sys
+from configuracion import WIDTH, HEIGHT, FPS
+from jugador import Jugador
+from enemigo import Enemigo
+from fondo import Fondo
+from plataforma import Plataforma
+from corazones import Corazones
 
 pygame.init()
-
-
 pygame.mixer.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Zombie Vs Ninja")
 clock = pygame.time.Clock()
 
-background = Background()
-player = Player()
-platform = Platform(0, 0, WIDTH, HEIGHT)  # (x, y, ancho, alto) / PARA CREAR LA PLATAFORMA EN LA POSICION ESPECIFICA
-lives = Lives()
+# Configuración inicial
+fondo = Fondo()
+jugador = Jugador()
+plataforma = Plataforma(0, 0, HEIGHT, WIDTH)  # Plataforma en la parte inferior
+corazones = Corazones(jugador)  # Se pasa el jugador como referencia
 
-
-
+# Grupos de sprites
 all_sprites = pygame.sprite.Group()
 enemies_list = pygame.sprite.Group()
+all_sprites.add(jugador, corazones)
 
-all_sprites.add(player)
-
+# Crear enemigos con posiciones reales
 for i in range(2):
-    enemies = Enemies()
-    all_sprites.add(enemies)
-    enemies_list.add(enemies)
-
-
-
-
+    enemigo = Enemigo(
+        x=100 + i * 200,
+        y=HEIGHT - 150,  # Posición sobre la plataforma
+        color=(255, 255, 255),
+        imagen=pygame.Surface((50, 50)),
+        puntos_vida=50,
+        ataque=10,
+        defensa=2,
+        tipo="Zombie"
+    )
+    all_sprites.add(enemigo)
+    enemies_list.add(enemigo)
 
 running = True
 while running:
-    # --- 1. Manejo de eventos ---
+    # Manejo de eventos
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    # --- 2. Actualizaciones de lógica del juego ---
-
+    # Actualización del juego
+    enemigos_vivos = [e for e in enemies_list if not e.is_dead]
+    
     # Actualizar jugador
-    player.update(enemies_list)
+    jugador.update(enemigos_vivos)
+    
+    # Actualizar corazones
+    corazones.update()
 
-    # Actualizar enemigos (y verificar colisión individual)
-    for enemy in enemies_list:
-        enemy.attacking = pygame.sprite.collide_rect(player, enemy)
-        enemy.update(player)
+    # Actualizar enemigos vivos y limpiar muertos
+    for enemy in list(enemies_list):
+        if enemy.is_dead and enemy.death_frame_index >= len(enemy.dead_frames):
+            enemy.kill()
+            enemies_list.remove(enemy)
+        else:
+            enemy.update(jugador if not jugador.is_dead else None)
 
-    # Otras colisiones globales (si necesitás acciones adicionales)
-    hits = pygame.sprite.spritecollide(player, enemies_list, False)
-    if hits:
-        print("¡Colisión detectada!")
-
-    # Actualizar otras entidades si tenés más (proyectiles, power-ups, etc.)
-
-    # --- 3. Dibujar todo en pantalla ---
-    screen.fill((0, 0, 0))  # Limpia la pantalla (negro de fondo)
-    background.draw(screen)  # Dibuja el fondo
-    screen.blit(platform.image, platform.rect)  # Dibuja la plataforma/base
-    lives.draw(screen)  # Dibuja vidas
-    all_sprites.draw(screen)  # Dibuja todos los sprites (jugador + enemigos)
-
-    # --- 4. Actualizar pantalla ---
+    # Dibujado
+    screen.fill((0, 0, 0))
+    fondo.draw(screen)
+    screen.blit(plataforma.image, plataforma.rect)
+    all_sprites.draw(screen)
     pygame.display.flip()
-
-    # --- 5. Controlar la velocidad del juego (FPS) ---
-    clock.tick(FPS)  # Limita a 60 FPS
+    clock.tick(FPS)
 
 pygame.quit()
+sys.exit()
