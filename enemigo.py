@@ -64,7 +64,7 @@ class Enemigo(Personaje):
         self.attack_speed = 9
         self.attack_count = 0
         self.attack_timer = 0
-        self.attack_delay = 60  # Tiempo en frames entre ataques
+        self.attack_delay = 20  # Tiempo en frames entre ataques
 
         self.dead_frames = [
             pygame.transform.scale(

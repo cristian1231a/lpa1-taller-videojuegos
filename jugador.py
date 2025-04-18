@@ -36,7 +36,7 @@ class Jugador(Personaje):
         color_dummy = (255, 255, 255)
         puntos_vida_inicial = 100
         ataque_inicial = 10
-        defensa_inicial = 5
+        defensa_inicial = 2
 
         super().__init__(x_inicial, y_inicial, color_dummy, imagen_inicial,
                          puntos_vida_inicial, ataque_inicial, defensa_inicial)

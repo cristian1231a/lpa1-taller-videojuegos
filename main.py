@@ -34,7 +34,7 @@ for i in range(2):
         color=(255, 255, 255),
         imagen=pygame.Surface((50, 50)),
         puntos_vida=50,
-        ataque=5,
+        ataque=10,
         defensa=2,
         tipo="Zombie"
     )
