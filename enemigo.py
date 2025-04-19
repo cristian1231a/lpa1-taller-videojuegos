@@ -2,7 +2,7 @@ import pygame, random
 from configuracion import WIDTH, HEIGHT, BLACK, WHITE
 from personaje import Personaje
 from sistema_combate import SistemaCombate
-from entidad import PocionDeVida  # Ajusta la ruta si es diferente
+from pocion_vida import PocionVida  # Ajusta la ruta si es diferente
 
 enemy_width = 60
 enemy_height = 80
@@ -165,7 +165,7 @@ class Enemigo(Personaje):
         # Probabilidad de soltar una poción (ej. 40%)
         # Probabilidad de soltar poción
         if random.random() < 0.4:  # 30% de probabilidad
-            pocion = PocionDeVida()  # Crear una nueva poción
+            pocion = PocionVida()  # Crear una nueva poción
             pocion.rect.center = self.rect.center  # Colocar la poción en la posición del enemigo
 
             # Agregar la poción a los grupos
