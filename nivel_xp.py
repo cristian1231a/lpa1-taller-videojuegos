@@ -45,3 +45,5 @@ class NivelXP:
         texto_nivel = f"Lv.{self.nivel}"
         render_nivel = fuente.render(texto_nivel, True, (255, 255, 255))
         pantalla.blit(render_nivel, (x + ancho_pantalla + 10, y))
+
+

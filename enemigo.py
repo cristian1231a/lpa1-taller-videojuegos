@@ -3,6 +3,7 @@ from configuracion import WIDTH, HEIGHT, BLACK, WHITE
 from personaje import Personaje
 from sistema_combate import SistemaCombate
 from pocion_vida import PocionVida  # Ajusta la ruta si es diferente
+from particula_xp import ParticulaXP  # Solo si está en otro archivo
 
 enemy_width = 60
 enemy_height = 80
@@ -186,18 +187,18 @@ class Enemigo(Personaje):
                 self.die()
 
     def die(self):
-        self.is_dead = True
-        self.death_frame_index = 0
+        self.is_dead = True  # Marcar al enemigo como muerto
+        self.death_frame_index = 0  # Reiniciar animación de muerte (si la tienes por cuadros)
 
-        # Probabilidad de soltar una poción (ej. 40%)
-        # Probabilidad de soltar poción
-        if random.random() < 1:  # 30% de probabilidad
+        # ── Soltar poción de vida con probabilidad del 30% ──
+        if random.random() < 0.3:
             pocion = PocionVida()  # Crear una nueva poción
             pocion.rect.center = self.rect.center  # Colocar la poción en la posición del enemigo
 
-            # Agregar la poción a los grupos
+            # Agregar la poción a los grupos de sprites correspondientes
             self.grupo_objetos.add(pocion)
             self.grupo_todos.add(pocion)
+
 
 
     def pintar(self, screen: pygame.Surface) -> None:

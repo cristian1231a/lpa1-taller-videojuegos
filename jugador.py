@@ -152,6 +152,7 @@ class Jugador(Personaje):
                 escenario.update(self.speed_x)  # Scroll escenario
                 plataforma.rect.x -= self.speed_x  # Scroll plataforma (en sentido contrario)
                 self.scroll_x = min(3160 - WIDTH, self.scroll_x + self.speed_x)
+                
 
 
         # Invocara al metodo esquivar en el salto

@@ -9,6 +9,7 @@ from plataforma import Plataforma
 from corazones import Corazones
 from nivel_xp import NivelXP
 from nivel_escudo import BarraEscudo
+from particula_xp import ParticulaXP
 
 pygame.init()
 pygame.mixer.init()
@@ -17,12 +18,14 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Zombie Vs Ninja")
 clock = pygame.time.Clock()
 
+
 # Configuración inicial
 escenario = Escenario()
 jugador = Jugador()
 plataforma = Plataforma(0, 0, HEIGHT, WIDTH)  # Plataforma en la parte inferior
 corazones = Corazones(jugador)  # Se pasa el jugador como referencia
 barra_escudo = BarraEscudo(jugador)
+grupo_particulas_xp = pygame.sprite.Group()
 
 
 
@@ -87,6 +90,13 @@ while running:
             jugador.agregar_al_inventario(objeto)
             objeto.kill()  # Elimina el objeto de todos los grupos (incluyendo objetos_sueltos y all_sprites)
             break
+
+    # Actualizar partículas XP (mueven y suman XP al llegar)
+    for particula in grupo_particulas_xp:
+        particula.update(NivelXP)
+
+    # Dibujar partículas XP
+    grupo_particulas_xp.draw(screen)
 
 
     escenario.update(jugador.scroll_x)
