@@ -58,6 +58,14 @@ class PocionDeVida(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (20, 40))  # Ajusta el tamaño aquí
         self.rect = self.image.get_rect()  # Definir el rectángulo para colisiones
         self.rect.center = (0, 0)  # Coloca la poción en el origen o la posición inicial deseada
+        self.nombre = "Poción de Vida"
+        self.es_consumible = True  # Es un objeto consumible
 
     def usar(self, objetivo):
-        print(f"{self.nombre} usada en {objetivo}. Vida restaurada.")
+        cantidad_cura = 25  # Cantidad de vida a restaurar
+
+        if objetivo.puntos_vida < objetivo.puntos_vida_max:
+            objetivo.puntos_vida = min(objetivo.puntos_vida + cantidad_cura, objetivo.puntos_vida_max)
+            print("¡Poción usada! Vida restaurada.")
+        else:
+            print("La vida ya está completa. No se usó la poción.")

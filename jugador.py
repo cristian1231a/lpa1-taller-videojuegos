@@ -84,7 +84,7 @@ class Jugador(Personaje):
 
         self.nivel = 1
         self.experiencia = 0
-        self.inventario = []
+        self.inventario = []  # Lista de inventario
         self.dinero = 100
         self.capas_defensa = 0
         self.puntos_vida_max = puntos_vida_inicial
@@ -218,6 +218,21 @@ class Jugador(Personaje):
                     SistemaCombate.calcular_daño(self, enemy)
                     self.daño_aplicado = True  # ← se aplica daño solo una vez
 
+
+
+        # Verificar teclas presionadas: 1, 2, 3, 4
+        for i in range(4):  # Iteramos por los 4 slots del inventario
+            tecla = pygame.K_1 + i  # Asocia la tecla 1 a 4 a sus índices correspondientes (pygame.K_1, pygame.K_2, etc.)
+
+            if keystate[tecla]:  # Si se presiona la tecla correspondiente a este slot
+                print(f"Tecla {i + 1} presionada.")  # Mensaje de depuración
+
+                if i < len(self.inventario):  # Verificar que el slot no esté vacío
+                    item = self.inventario[i]
+                    if item:
+                        # Llamar a usar_objeto cuando la tecla correspondiente se presiona
+                        self.usar_objeto(item, i)  # Llamamos al método para usar el objeto
+
     def atacar(self):
         self.is_attacking = True
         self.frame_count = 0
@@ -271,5 +286,67 @@ class Jugador(Personaje):
     def colision(self, otra: Entidad) -> bool:
         return self.rect.colliderect(otra.rect)
 
+    # Método para actualizar el jugador
     def actualizar(self) -> None:
-        self.update([])
+        # Llamamos al método update de la clase base (para movimiento, colisiones, etc.)
+        self.update([])  # Actualiza el jugador con las acciones necesarias (puedes añadir más parámetros si es necesario)
+
+        # Llamamos al método para usar objetos
+        self.usar_objeto()
+
+    
+
+    # METODO PARA mostrar el inventario de pantalla
+    def dibujar_inventario(self, screen: pygame.Surface):
+        slot_size = 40
+        espacio = 10
+        x_inicial = 30
+        y_inicial = 120
+
+        font = pygame.font.SysFont(None, 20)
+
+        for i in range(4):
+            y = y_inicial + i * (slot_size + espacio)
+            rect = pygame.Rect(x_inicial, y, slot_size, slot_size)
+            pygame.draw.rect(screen, (200, 200, 200), rect, 2)  # Borde gris
+
+            # Evitar IndexError si el slot aún no está ocupado
+            item = self.inventario[i] if i < len(self.inventario) else None
+
+            if item and hasattr(item, "image"):
+                imagen_escalada = pygame.transform.scale(item.image, (slot_size - 4, slot_size - 4))
+                screen.blit(imagen_escalada, (x_inicial + 2, y + 2))
+            elif item:
+                texto = font.render(str(item), True, (255, 255, 255))
+                screen.blit(texto, (x_inicial + 5, y + 10))
+
+            # Mostrar número del slot (1 a 4) en la esquina inferior derecha
+            numero = font.render(str(i + 1), True, (180, 180, 180))  # color gris claro
+            numero_rect = numero.get_rect(bottomright=(x_inicial + slot_size - 2, y + slot_size - 2))
+            screen.blit(numero, numero_rect)
+
+    # METODO PARA AGREGAR AL INVENTARIO EL OBJETO
+    def agregar_al_inventario(self, item):
+        print(f"[DEBUG] Inventario actual: {len(self.inventario)} items")
+        if len(self.inventario) < 4:
+            self.inventario.append(item)
+            print("Objeto agregado al inventario.")
+        else:
+            print("Inventario lleno. No se pudo agregar el objeto.")
+
+
+
+    # MÉTODO PARA USAR EL OBJETO (iterando de atrás hacia adelante)
+    def usar_objeto(self, item, index):
+        print(f"Usando objeto en slot {index + 1}: {item}")  # Mensaje de depuración
+
+        # Llamar al método usar del objeto (si existe)
+        if hasattr(item, 'usar'):
+            item.usar(self)  # El jugador es el objetivo aquí
+            print(f"Usando {item} en {self}.")  # Mensaje de depuración
+
+        # Si el objeto es consumible, lo eliminamos del inventario
+        if hasattr(item, 'es_consumible') and item.es_consumible:
+            # Eliminar el objeto después de usarlo
+            self.inventario.pop(index)
+            print(f"Objeto {item} eliminado del inventario")  # Mensaje de depuración

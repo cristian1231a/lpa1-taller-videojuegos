@@ -74,12 +74,20 @@ while running:
         else:
             enemy.update(jugador if not jugador.is_dead else None)
 
+    # Recolectar objetos
+    for objeto in objetos_sueltos:
+        if jugador.rect.colliderect(objeto.rect):
+            jugador.agregar_al_inventario(objeto)
+            objeto.kill()  # Elimina el objeto de todos los grupos (incluyendo objetos_sueltos y all_sprites)
+            break
+
     # Dibujado
     screen.fill((0, 0, 0))
     fondo.draw(screen)
     screen.blit(plataforma.image, plataforma.rect)
     nivel.mostrar_barra_xp(screen, 300)
     all_sprites.draw(screen)
+    jugador.dibujar_inventario(screen)
     pygame.display.flip()
     clock.tick(FPS)
 
