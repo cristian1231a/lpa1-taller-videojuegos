@@ -45,6 +45,14 @@ class Jugador(Personaje):
         ataque_inicial = 10
         defensa_inicial = 2
 
+        self.escudo = 25  # Escudo básico, o cualquier valor inicial
+        self.escudo_max = 25  # Escudo máximo, para escudo básico
+
+        # O si el jugador puede tener un escudo avanzado:
+        def activar_escudo_avanzado(self):
+            self.escudo = 50  # Cambiar a escudo avanzado
+            self.escudo_max = 50
+
         super().__init__(x_inicial, y_inicial, color_dummy, imagen_inicial,
                          puntos_vida_inicial, ataque_inicial, defensa_inicial)
 
@@ -257,18 +265,28 @@ class Jugador(Personaje):
 
 
     def recibir_daño(self, dano: int):
-
-        # inmune si salta o muerto
+        # inmune si salta o está muerto
         if self.is_dead or self.is_jumping:
             return
 
-        # si está defendiendo, bloquea el 50 %
-        if self.is_defending:
-            dano = dano // 2
+        # Si tiene escudo, reduce el daño del escudo primero
+        if self.escudo > 0:
+            if dano < self.escudo:
+                self.escudo -= dano  # Reducir el escudo por el daño recibido
+                print(f"[ESCUDO] Escudo: {self.escudo}/{self.escudo_max}")
+                dano = 0  # No hay daño restante, ya se absorbió todo el daño con el escudo
+            else:
+                # Si el daño es mayor que el escudo, se reduce el escudo a 0 y el resto va a la vida
+                dano -= self.escudo
+                self.escudo = 0
+                print(f"[ESCUDO] Escudo agotado. Escudo: {self.escudo}/{self.escudo_max}")
 
-        self.puntos_vida = max(0, self.puntos_vida - dano)
-        print(f"[DAÑO] Salud: {self.puntos_vida}/{self.puntos_vida_max}")
+        # Si no queda escudo, reducir los puntos de vida
+        if dano > 0:
+            self.puntos_vida = max(0, self.puntos_vida - dano)
+            print(f"[DAÑO] Salud: {self.puntos_vida}/{self.puntos_vida_max}")
 
+        # Si se quedó sin vida, el jugador muere
         if self.puntos_vida == 0:
             self.morir()
 
