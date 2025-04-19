@@ -4,7 +4,7 @@ import sys
 from configuracion import WIDTH, HEIGHT, FPS
 from jugador import Jugador
 from enemigo import Enemigo
-from fondo import Fondo
+from escenario import Escenario
 from plataforma import Plataforma
 from corazones import Corazones
 from nivel_xp import NivelXP
@@ -18,7 +18,7 @@ pygame.display.set_caption("Zombie Vs Ninja")
 clock = pygame.time.Clock()
 
 # Configuración inicial
-fondo = Fondo()
+escenario = Escenario()
 jugador = Jugador()
 plataforma = Plataforma(0, 0, HEIGHT, WIDTH)  # Plataforma en la parte inferior
 corazones = Corazones(jugador)  # Se pasa el jugador como referencia
@@ -64,7 +64,7 @@ while running:
     enemigos_vivos = [e for e in enemies_list if not e.is_dead]
     
     # Actualizar jugador
-    jugador.update(enemigos_vivos)
+    jugador.update(enemigos_vivos, escenario, plataforma)
     
     # Actualizar corazones
     corazones.update()
@@ -88,10 +88,14 @@ while running:
             objeto.kill()  # Elimina el objeto de todos los grupos (incluyendo objetos_sueltos y all_sprites)
             break
 
+
+    escenario.update(jugador.scroll_x)
+    plataforma.update(jugador.scroll_x)
+
     # Dibujado
     screen.fill((0, 0, 0))
-    fondo.draw(screen)
-    screen.blit(plataforma.image, plataforma.rect)
+    escenario.draw(screen)
+    plataforma.draw(screen)
 
     #  Dibujar todos los sprites generales
     all_sprites.draw(screen)

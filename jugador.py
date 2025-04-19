@@ -2,6 +2,7 @@ import pygame
 from entidad import Entidad
 from personaje import Personaje
 from sistema_combate import SistemaCombate
+from configuracion import WIDTH, HEIGHT
 
 class Jugador(Personaje):
     def __init__(self):
@@ -44,6 +45,8 @@ class Jugador(Personaje):
         puntos_vida_inicial = 100
         ataque_inicial = 10
         defensa_inicial = 2
+        self.scroll_x = 0
+        
 
         self.escudo = 25  # Escudo básico, o cualquier valor inicial
         self.escudo_max = 25  # Escudo máximo, para escudo básico
@@ -58,6 +61,8 @@ class Jugador(Personaje):
 
         self.rect.centerx = x_inicial
         self.rect.bottom = y_inicial
+
+        self.scroll_x = 0  # reset en cada frame
 
         self.speed_x = 0
         self.speed_y = 0
@@ -104,7 +109,7 @@ class Jugador(Personaje):
         else:
             return pygame.Rect(self.rect.left - extension, self.rect.top, extension, self.rect.height)
 
-    def update(self, enemies_list):
+    def update(self, enemies_list, escenario, plataforma):
         if self.is_dead:
             self.death_frame_timer += 1
             if self.death_frame_timer >= self.death_frame_delay:
@@ -124,12 +129,31 @@ class Jugador(Personaje):
 
         keystate = pygame.key.get_pressed()
         self.speed_x = 0
+        self.scroll_x = 0
+        SCROLL_MARGIN = 200  # Límite a partir del cual se hace scroll
+
         if keystate[pygame.K_LEFT]:
-            self.speed_x = -2
+            self.speed_x = -1
             self.facing_right = False
+            if self.rect.centerx > SCROLL_MARGIN or escenario.scroll_x <= 0:
+                self.rect.x += self.speed_x  # Mover jugador
+            else:
+                escenario.update(self.speed_x)  # Scroll escenario
+                plataforma.rect.x -= self.speed_x  # Scroll plataforma (en sentido contrario)
+                self.scroll_x = min(3160 - WIDTH, self.scroll_x + self.speed_x)
+
+
         if keystate[pygame.K_RIGHT]:
-            self.speed_x = 2
+            self.speed_x = 1
             self.facing_right = True
+            if self.rect.centerx < WIDTH - SCROLL_MARGIN or escenario.scroll_x >= escenario.max_scroll:
+             self.rect.x += self.speed_x  # Mover jugador
+            else:
+                escenario.update(self.speed_x)  # Scroll escenario
+                plataforma.rect.x -= self.speed_x  # Scroll plataforma (en sentido contrario)
+                self.scroll_x = min(3160 - WIDTH, self.scroll_x + self.speed_x)
+
+
         # Invocara al metodo esquivar en el salto
         if keystate[pygame.K_UP] and self.on_ground:
             self.esquivar()
