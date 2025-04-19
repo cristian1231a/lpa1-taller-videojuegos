@@ -228,18 +228,18 @@ class Jugador(Personaje):
 
 
 
-        # Verificar teclas presionadas: 1, 2, 3, 4
-        for i in range(4):  # Iteramos por los 4 slots del inventario
-            tecla = pygame.K_1 + i  # Asocia la tecla 1 a 4 a sus índices correspondientes (pygame.K_1, pygame.K_2, etc.)
-
-            if keystate[tecla]:  # Si se presiona la tecla correspondiente a este slot
-                print(f"Tecla {i + 1} presionada.")  # Mensaje de depuración
-
-                if i < len(self.inventario):  # Verificar que el slot no esté vacío
-                    item = self.inventario[i]
-                    if item:
-                        # Llamar a usar_objeto cuando la tecla correspondiente se presiona
-                        self.usar_objeto(item, i)  # Llamamos al método para usar el objeto
+        # En tu ciclo principal del juego, dentro del bucle de eventos:
+        # Captura la entrada del teclado para usar objetos
+        keys = pygame.key.get_pressed()
+        
+        if keys[pygame.K_1]:  # Si presionas '1'
+            self.usar_objeto(0)  # Usar el objeto en la ranura 1
+        elif keys[pygame.K_2]:  # Si presionas '2'
+            self.usar_objeto(1)  # Usar el objeto en la ranura 2
+        elif keys[pygame.K_3]:  # Si presionas '3'
+            self.usar_objeto(2)  # Usar el objeto en la ranura 3
+        elif keys[pygame.K_4]:  # Si presionas '4'
+            self.usar_objeto(3)  # Usar el objeto en la ranura 4
 
     def atacar(self):
         self.is_attacking = True
@@ -355,16 +355,22 @@ class Jugador(Personaje):
 
 
     # MÉTODO PARA USAR EL OBJETO (iterando de atrás hacia adelante)
-    def usar_objeto(self, item, index):
-        print(f"Usando objeto en slot {index + 1}: {item}")  # Mensaje de depuración
+       
+    def usar_objeto(self, index):
+        if index < len(self.inventario):
+            item = self.inventario[index]  # Obtener el item según el índice
 
-        # Llamar al método usar del objeto (si existe)
-        if hasattr(item, 'usar'):
-            item.usar(self)  # El jugador es el objetivo aquí
-            print(f"Usando {item} en {self}.")  # Mensaje de depuración
+            print(f"Usando objeto en slot {index + 1}: {item}")  # Mensaje de depuración
 
-        # Si el objeto es consumible, lo eliminamos del inventario
-        if hasattr(item, 'es_consumible') and item.es_consumible:
-            # Eliminar el objeto después de usarlo
-            self.inventario.pop(index)
-            print(f"Objeto {item} eliminado del inventario")  # Mensaje de depuración
+            # Llamar al método usar del objeto (si existe)
+            if hasattr(item, 'usar'):
+                item.usar(self)  # El jugador es el objetivo aquí
+                print(f"Usando {item} en {self}.")  # Mensaje de depuración
+
+            # Si el objeto es consumible, lo eliminamos del inventario
+            if hasattr(item, 'es_consumible') and item.es_consumible:
+                # Eliminar el objeto después de usarlo
+                self.inventario.pop(index)
+                print(f"Objeto {item} eliminado del inventario")  # Mensaje de depuración
+        else:
+            print("Índice fuera de rango, no hay objeto en ese slot.")

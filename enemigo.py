@@ -9,6 +9,7 @@ enemy_height = 80
 
 class Enemigo(Personaje):
     def __init__(self, x, y, color, imagen, puntos_vida, ataque, defensa, tipo):
+        #ANIMACION DEL ENEMIGO CUANDO RECIBE DANIO
         raw_walk_frames = [
             pygame.transform.scale(
                 pygame.image.load(f"assets/img/enemies/zombie/male/walk/Walk ({i}).png").convert(),
@@ -16,8 +17,24 @@ class Enemigo(Personaje):
             )
             for i in range(1, 5)
         ]
+        
         for frame in raw_walk_frames:
             frame.set_colorkey(BLACK)
+
+
+        #ANIMACION DE SANGRE CUANDO SE RECIBE GOLPE EL ENEMIGO
+        self.sangre_frames = [
+            pygame.transform.scale(
+                pygame.image.load(f"assets/img/sfx/blood/blood{i}.png").convert_alpha(),
+                (80, 42)  # Cambia este tamaño según lo que necesites
+            )
+            for i in range(1, 17)
+        ]
+        self.mostrar_sangre = False
+        self.sangre_index = 0
+        #self.sangre_pos = self.rect.center
+        
+   
 
         self.walk_frames_left = [pygame.transform.flip(frame, True, False) for frame in raw_walk_frames]
         self.walk_frames_right = raw_walk_frames[:]
@@ -145,6 +162,16 @@ class Enemigo(Personaje):
                 self.image_index = (self.image_index + 1) % len(self.walk_frames)
                 self.image = self.walk_frames[self.image_index]
 
+                 # Lógica de movimiento, combate, etc...
+
+        if self.mostrar_sangre:
+            print("MOSTRAR SANGRE")
+            if self.sangre_index < len(self.sangre_frames):
+                self.sangre_image = self.sangre_frames[self.sangre_index]
+                self.sangre_index += 1
+            else:
+                self.mostrar_sangre = False
+
     def realizar_ataque(self, jugador):
         if jugador.is_dead:
             return
@@ -164,7 +191,7 @@ class Enemigo(Personaje):
 
         # Probabilidad de soltar una poción (ej. 40%)
         # Probabilidad de soltar poción
-        if random.random() < 0.4:  # 30% de probabilidad
+        if random.random() < 1:  # 30% de probabilidad
             pocion = PocionVida()  # Crear una nueva poción
             pocion.rect.center = self.rect.center  # Colocar la poción en la posición del enemigo
 
@@ -188,8 +215,13 @@ class Enemigo(Personaje):
         """
         if self.is_dead:
             return
-        # Como 'dano' ya está reducido por defensa en SistemaCombate, lo aplicamos directamente
         self.puntos_vida = max(0, self.puntos_vida - dano)
         print(f"{self.tipo} recibió {dano} daño. Salud: {self.puntos_vida}")
+        
+        # Activar animación de sangre
+        self.mostrar_sangre = True
+        self.sangre_index = 0
+        self.sangre_pos = self.rect.center
+
         if self.puntos_vida == 0:
             self.die()

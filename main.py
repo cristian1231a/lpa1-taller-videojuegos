@@ -77,6 +77,10 @@ while running:
         else:
             enemy.update(jugador if not jugador.is_dead else None)
 
+            # Dibujar enemigos y sangre
+    for enemigo in enemies_list:
+        screen.blit(enemigo.image, enemigo.rect)
+
     # Recolectar objetos
     for objeto in objetos_sueltos:
         if jugador.rect.colliderect(objeto.rect):
@@ -88,10 +92,22 @@ while running:
     screen.fill((0, 0, 0))
     fondo.draw(screen)
     screen.blit(plataforma.image, plataforma.rect)
+
+    #  Dibujar todos los sprites generales
+    all_sprites.draw(screen)
+
+    # ❤️ Dibujar sangre encima de los enemigos
+    for enemigo in enemies_list:
+        if enemigo.mostrar_sangre and enemigo.sangre_index > 0:
+            blood_img = enemigo.sangre_frames[enemigo.sangre_index - 1]
+            blood_rect = blood_img.get_rect(center=enemigo.sangre_pos)
+            screen.blit(blood_img, blood_rect)
+    
+    
+    # Interfaces
+    jugador.dibujar_inventario(screen)
     nivel.mostrar_barra_xp(screen, 300)
     barra_escudo.mostrar_barra_escudo(screen)
-    all_sprites.draw(screen)
-    jugador.dibujar_inventario(screen)
     
     pygame.display.flip()
     clock.tick(FPS)
