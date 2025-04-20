@@ -94,11 +94,14 @@ class Jugador(Personaje):
         self.defend_frame_delay = 8  # controla velocidad de la animación de bloqueo
         # NUEVO: para detectar solo el flanco de bajada/subida de Z
         self._z_was_pressed = False
+        
+        self.puntuacion = 0
+        self.puntuacion += 0
 
         self.nivel = 1
         self.experiencia = 0
         self.inventario = []  # Lista de inventario
-        self.dinero = 100
+        self.dinero = 0
         self.capas_defensa = 0
         self.puntos_vida_max = puntos_vida_inicial
 
