@@ -3,6 +3,7 @@ from entidad import Entidad
 from personaje import Personaje
 from sistema_combate import SistemaCombate
 from configuracion import WIDTH, HEIGHT
+from nivel_xp import NivelXP
 
 class Jugador(Personaje):
     def __init__(self):
@@ -42,8 +43,8 @@ class Jugador(Personaje):
         x_inicial = 800 // 2
         y_inicial = 600 - 10
         color_dummy = (255, 255, 255)
-        puntos_vida_inicial = 100
-        ataque_inicial = 10
+        puntos_vida_inicial = 80
+        ataque_inicial = 6
         defensa_inicial = 2
         self.scroll_x = 0
         
@@ -100,6 +101,7 @@ class Jugador(Personaje):
 
         self.nivel = 1
         self.experiencia = 0
+        self.nivel_xp = NivelXP()
         self.inventario = []  # Lista de inventario
         self.dinero = 0
         self.capas_defensa = 0
@@ -312,7 +314,7 @@ class Jugador(Personaje):
         # Si no queda escudo, reducir los puntos de vida
         if dano > 0:
             self.puntos_vida = max(0, self.puntos_vida - dano)
-            print(f"[DAÑO] Salud: {self.puntos_vida}/{self.puntos_vida_max}")
+            print(f"[DAÑO] Salud: {self.puntos_vida}/{self.puntos_vida_max} | Total recibido: {dano}")
 
         # Si se quedó sin vida, el jugador muere
         if self.puntos_vida == 0:

@@ -51,9 +51,9 @@ class Enemigo(Personaje):
         x = self.rect.x
         y = self.rect.y
         color = WHITE
-        puntos_vida = 2
-        ataque = 6
-        defensa = 11
+        puntos_vida = 8
+        ataque = 5
+        defensa = 2 
         tipo = "Zombie"
         super().__init__(x, y, color, image_initial, puntos_vida, ataque, defensa)
         self.tipo = tipo
@@ -166,7 +166,7 @@ class Enemigo(Personaje):
                  # Lógica de movimiento, combate, etc...
 
         if self.mostrar_sangre:
-            print("MOSTRAR SANGRE")
+            # print("MOSTRAR SANGRE")
             if self.sangre_index < len(self.sangre_frames):
                 self.sangre_image = self.sangre_frames[self.sangre_index]
                 self.sangre_index += 1
