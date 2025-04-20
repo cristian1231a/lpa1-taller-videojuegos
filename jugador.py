@@ -101,7 +101,7 @@ class Jugador(Personaje):
         self.nivel = 1
         self.experiencia = 0
         self.inventario = []  # Lista de inventario
-        self.dinero = 100
+        self.dinero = 0
         self.capas_defensa = 0
         self.puntos_vida_max = puntos_vida_inicial
 
