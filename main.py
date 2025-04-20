@@ -1,6 +1,7 @@
 # programa principal
 import pygame
 import sys
+import random
 from configuracion import WIDTH, HEIGHT, FPS
 from jugador import Jugador
 from enemigo import Enemigo
@@ -96,6 +97,10 @@ while running:
                 print("¡Subiste de nivel!")
             # ── Aumentar puntuación ──
             jugador.puntuacion += 20
+            # ── Aumentar dinero entre 2 y 8 monedas ──
+            monedas = random.randint(2, 8)
+            jugador.dinero += monedas
+            print(f"¡Obtuviste {monedas} monedas!")
             # Una vez subimos, reajustamos atributos de los enemigos vivos
             sistema_niveles.actualizar_enemigos()
 
