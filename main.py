@@ -94,6 +94,8 @@ while running:
             if sistema_niveles.intentar_subir_nivel(xp_ganada):
                 jugador.nivel_xp.agregar_experiencia(xp_ganada)
                 print("¡Subiste de nivel!")
+            # ── Aumentar puntuación ──
+            jugador.puntuacion += 20
             # Una vez subimos, reajustamos atributos de los enemigos vivos
             sistema_niveles.actualizar_enemigos()
 
