@@ -10,6 +10,7 @@ from corazones import Corazones
 from nivel_xp import NivelXP
 from nivel_escudo import BarraEscudo
 from particula_xp import ParticulaXP
+from puntuacion import Puntuacion
 
 pygame.init()
 pygame.mixer.init()
@@ -26,6 +27,7 @@ plataforma = Plataforma(0, 0, HEIGHT, WIDTH)  # Plataforma en la parte inferior
 corazones = Corazones(jugador)  # Se pasa el jugador como referencia
 barra_escudo = BarraEscudo(jugador)
 grupo_particulas_xp = pygame.sprite.Group()
+puntuacion = Puntuacion(jugador)
 
 
 
@@ -122,6 +124,7 @@ while running:
     jugador.dibujar_inventario(screen)
     nivel.mostrar_barra_xp(screen, 300)
     barra_escudo.mostrar_barra_escudo(screen)
+    puntuacion.dibujar(screen)
     
     pygame.display.flip()
     clock.tick(FPS)
