@@ -13,6 +13,7 @@ from nivel_escudo import BarraEscudo
 from puntuacion import Puntuacion
 from billetera import Billetera
 from condicion_victoria import CondicionVictoria
+from screen_inicio import mostrar_pantalla_inicio
 
 pygame.init()
 pygame.mixer.init()
@@ -26,6 +27,7 @@ clock = pygame.time.Clock()
 pygame.mixer.music.load("assets/sounds/sonidoDeFondo.mp3")
 pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(-1)
+
 
 
 # Configuración inicial
@@ -80,8 +82,7 @@ sistema_niveles = SistemaNiveles(jugador, enemies_list)
 
 game_over = False
 
-
-
+mostrar_pantalla_inicio(screen)
 running = True
 while running:
     # Manejo de eventos
@@ -185,8 +186,8 @@ while running:
     y_base = 50 # altura fija
 
     # Dibujar ataque
-    screen.blit(icon_atk,  (x_base,                              y_base))
-    screen.blit(texto_atk, (x_base + icon_size[0] + 5,            y_base + (icon_size[1] - texto_atk.get_height()) // 2))
+    screen.blit(icon_atk,  (x_base,y_base))
+    screen.blit(texto_atk, (x_base + icon_size[0] + 5, y_base + (icon_size[1] - texto_atk.get_height()) // 2))
 
     # Dibujar defensa, desplazado a la derecha
     x_def_block = x_base + block_width + spacing
