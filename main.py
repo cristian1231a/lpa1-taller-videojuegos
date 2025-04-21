@@ -13,6 +13,7 @@ from nivel_escudo import BarraEscudo
 from particula_xp import ParticulaXP
 from puntuacion import Puntuacion
 from billetera import Billetera
+from condicion_victoria import CondicionVictoria
 
 pygame.init()
 pygame.mixer.init()
@@ -32,6 +33,8 @@ grupo_particulas_xp = pygame.sprite.Group()
 puntuacion = Puntuacion(jugador)
 billetera = Billetera(jugador)
 nivel = jugador.nivel_xp
+cond_victoria = CondicionVictoria(jugador, exploracion_requerida=5, puntaje_requerido=400)
+areas_exploradas = 0  # Lógica para incrementarlo cuando el jugador avance de área
 
 # Carga de íconos
 icon_atk = pygame.image.load("assets/img/scene/statistics/ninja_attack_icon.png").convert_alpha()
@@ -69,6 +72,9 @@ for i in range(20):
 # 2) Ahora que `enemies_list` ya existe, instanciamos el sistema de niveles
 from sistema_niveles import SistemaNiveles
 sistema_niveles = SistemaNiveles(jugador, enemies_list)
+
+game_over = False
+
 
 
 running = True
@@ -182,8 +188,17 @@ while running:
     screen.blit(icon_def,  (x_def_block,                         y_base))
     screen.blit(texto_def, (x_def_block + icon_size[0] + 5,      y_base + (icon_size[1] - texto_def.get_height()) // 2))
     
+    # ——— COMPROBAR VICTORIA/DERROTA ———
+    if cond_victoria.verificar_victoria(areas_exploradas):
+        cond_victoria.dibujar(screen)
+        pygame.display.flip()
+        continue   # salto a siguiente iteración, no redibujar nada más
+    
     pygame.display.flip()
     clock.tick(FPS)
+    
+    if cond_victoria.verificar_victoria(areas_exploradas):
+        cond_victoria.dibujar(screen)
 
 pygame.quit()
 sys.exit()
