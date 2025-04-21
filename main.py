@@ -10,7 +10,6 @@ from plataforma import Plataforma
 from corazones import Corazones
 from nivel_xp import NivelXP
 from nivel_escudo import BarraEscudo
-from particula_xp import ParticulaXP
 from puntuacion import Puntuacion
 from billetera import Billetera
 from condicion_victoria import CondicionVictoria
@@ -21,6 +20,12 @@ pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Zombie Vs Ninja")
 clock = pygame.time.Clock()
+
+
+# Cargar y reproducir música de fondo
+pygame.mixer.music.load("assets/sounds/sonidoDeFondo.mp3")
+pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.play(-1)
 
 
 # Configuración inicial

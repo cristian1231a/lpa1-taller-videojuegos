@@ -3,7 +3,7 @@ from configuracion import WIDTH, HEIGHT, BLACK, WHITE
 from personaje import Personaje
 from sistema_combate import SistemaCombate
 from pocion_vida import PocionVida  # Ajusta la ruta si es diferente
-from particula_xp import ParticulaXP  # Solo si está en otro archivo
+
 
 enemy_width = 60
 enemy_height = 80
@@ -64,6 +64,10 @@ class Enemigo(Personaje):
         self.speed_x = 1
         self.animation_speed = 5
         self.frame_count = 0
+
+        #SONIDO DEL EFECTO CUANDO EL ZOMBIE MUERE
+        self.sonido_zombie_death1 = pygame.mixer.Sound("assets/sounds/zombieDeath1.mp3")
+        self.sonido_zombie_death1.set_volume(0.6)  # Puedes ajustar el volumen aquí
 
         raw_attack_frames = [
             pygame.transform.scale(
@@ -189,6 +193,7 @@ class Enemigo(Personaje):
     def die(self):
         self.is_dead = True  # Marcar al enemigo como muerto
         self.death_frame_index = 0  # Reiniciar animación de muerte (si la tienes por cuadros)
+        self.sonido_zombie_death1.play()
 
         # ── Soltar poción de vida con probabilidad del 30% ──
         if random.random() < 0.3:

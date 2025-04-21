@@ -52,6 +52,15 @@ class Jugador(Personaje):
         self.escudo = 25  # Escudo básico, o cualquier valor inicial
         self.escudo_max = 25  # Escudo máximo, para escudo básico
 
+        
+        #SONIDO DEL EFECTO DE LA ESPADA CUANDO ATAQUE
+        self.sonido_espada = pygame.mixer.Sound("assets/sounds/swordSound1.mp3")
+        self.sonido_espada.set_volume(0.6)  # Puedes ajustar el volumen aquí
+
+        #SONIDO DEL EFECTO CUANDO EL PLAYER MUERE      
+        self.sonido_player_death = pygame.mixer.Sound("assets/sounds/playerDeath1.mp3")
+        self.sonido_player_death.set_volume(0.6)  # Puedes ajustar el volumen aquí
+
         # O si el jugador puede tener un escudo avanzado:
         def activar_escudo_avanzado(self):
             self.escudo = 50  # Cambiar a escudo avanzado
@@ -142,22 +151,14 @@ class Jugador(Personaje):
             self.facing_right = False
             if self.rect.centerx > SCROLL_MARGIN or escenario.scroll_x <= 0:
                 self.rect.x += self.speed_x  # Mover jugador
-            else:
-                escenario.update(self.speed_x)  # Scroll escenario
-                plataforma.rect.x -= self.speed_x  # Scroll plataforma (en sentido contrario)
-                self.scroll_x = min(3160 - WIDTH, self.scroll_x + self.speed_x)
-
+         
 
         if keystate[pygame.K_RIGHT]:
             self.speed_x = 1
             self.facing_right = True
             if self.rect.centerx < WIDTH - SCROLL_MARGIN or escenario.scroll_x >= escenario.max_scroll:
              self.rect.x += self.speed_x  # Mover jugador
-            else:
-                escenario.update(self.speed_x)  # Scroll escenario
-                plataforma.rect.x -= self.speed_x  # Scroll plataforma (en sentido contrario)
-                self.scroll_x = min(3160 - WIDTH, self.scroll_x + self.speed_x)
-                
+       
 
 
         # Invocara al metodo esquivar en el salto
@@ -165,6 +166,7 @@ class Jugador(Personaje):
             self.esquivar()
         if keystate[pygame.K_SPACE] and not self.is_attacking:
             self.atacar()
+            
         # ---- DEFENSA con Z: solo en transición NO pulsado → pulsado ----
         z_pressed = keystate[pygame.K_z]
         # Si Z está presionado y condiciones permiten defensa
@@ -276,6 +278,7 @@ class Jugador(Personaje):
         self.frame_count = 0
         self.image_index = 0
         self.daño_aplicado = False  # ← permite ataque nuevo
+        self.sonido_espada.play()  # 🔊 ¡Reproducir sonido!
         print("Jugador ataca.")
         
     def esquivar(self):
@@ -326,6 +329,7 @@ class Jugador(Personaje):
             self.death_frame_index = 0
             self.death_frame_timer = 0
             self.death_position = self.rect.copy()
+            self.sonido_player_death.play()
         print("El jugador ha sido derrotado.")
 
     def pintar(self, screen: pygame.Surface) -> None:
