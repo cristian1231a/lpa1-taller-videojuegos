@@ -82,6 +82,11 @@ class Enemigo(Personaje):
         self.attack_frames_right = raw_attack_frames[:]
         self.attack_frames = self.attack_frames_left
 
+        # aplicar color al recibir daño
+        self.last_damage = 0
+        self.damage_color = (255,255,255)
+        self.damage_timer = 0
+
         self.attacking = False
         self.attack_index = 0
         self.attack_speed = 9
@@ -206,8 +211,15 @@ class Enemigo(Personaje):
 
 
 
-    def pintar(self, screen: pygame.Surface) -> None:
+    def pintar(self, screen):
         screen.blit(self.image, self.rect)
+        if self.damage_timer > 0:
+            font = pygame.font.Font(None, 24)
+            txt = font.render(str(self.last_damage), True, self.damage_color)
+            x = self.rect.centerx - txt.get_width()//2
+            y = self.rect.top - 10
+            screen.blit(txt, (x, y))
+            self.damage_timer -= 1
 
     def colision(self, otra) -> bool:
         return self.rect.colliderect(otra.rect)
@@ -222,6 +234,10 @@ class Enemigo(Personaje):
         if self.is_dead:
             return
         self.puntos_vida = max(0, self.puntos_vida - dano)
+        # registramos para mostrarlo
+        self.last_damage = dano
+        self.damage_timer = 60
+        self.damage_color = (255,255,255)
         print(f"{self.tipo} recibió {dano} daño. Salud: {self.puntos_vida}")
         
         # Activar animación de sangre
