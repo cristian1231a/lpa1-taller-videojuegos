@@ -283,7 +283,7 @@ class Jugador(Personaje):
         self.frame_count = 0
         self.image_index = 0
         self.daño_aplicado = False  # ← permite ataque nuevo
-        self.sonido_espada.play()  # 🔊 ¡Reproducir sonido!
+        self.sonido_espada.play()  #  ¡Reproducir sonido!
         print("Jugador ataca.")
         
     def esquivar(self):
