@@ -90,6 +90,11 @@ class Jugador(Personaje):
         self.is_attacking = False
         self.facing_right = True
 
+        # aplicar color al recibir daño
+        self.last_damage = 0
+        self.damage_color = (255,0,0)
+        self.damage_timer = 0
+
         self.tipo = "Jugador"
         self.daño_aplicado = False  # ← Nuevo: controlar un solo ataque por animación
         self.is_dead = False
@@ -317,6 +322,10 @@ class Jugador(Personaje):
         # Si no queda escudo, reducir los puntos de vida
         if dano > 0:
             self.puntos_vida = max(0, self.puntos_vida - dano)
+            # registramos para mostrarlo
+            self.last_damage = dano
+            self.damage_timer = 60
+            self.damage_color = (255,0,0)
             print(f"[DAÑO] Salud: {self.puntos_vida}/{self.puntos_vida_max} | Total recibido: {dano}")
 
         # Si se quedó sin vida, el jugador muere
@@ -332,8 +341,17 @@ class Jugador(Personaje):
             self.sonido_player_death.play()
         print("El jugador ha sido derrotado.")
 
-    def pintar(self, screen: pygame.Surface) -> None:
+    def pintar(self, screen):
         screen.blit(self.image, self.rect)
+        if self.damage_timer > 0:
+            font = pygame.font.Font(None, 24)
+            txt = font.render(str(self.last_damage), True, self.damage_color)
+            # lo pintamos justo encima del centro del sprite:
+            x = self.rect.centerx - txt.get_width()//2
+            y = self.rect.top   - 10
+            screen.blit(txt, (x, y))
+            self.damage_timer -= 1
+
 
     def colision(self, otra: Entidad) -> bool:
         return self.rect.colliderect(otra.rect)

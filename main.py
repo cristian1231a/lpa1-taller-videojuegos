@@ -64,7 +64,7 @@ all_sprites.add(jugador, corazones)
 
 
 # Crear enemigos con posiciones reales
-for i in range(20):
+for i in range(2):
     enemigo = Enemigo(
         x=100 + i * 200,
         y=HEIGHT - 150,  # Posición sobre la plataforma
@@ -166,7 +166,12 @@ while running:
     plataforma.draw(screen)
 
     #  Dibujar todos los sprites generales
-    all_sprites.draw(screen)
+        # escribe esto:
+    for sprite in all_sprites:
+        if hasattr(sprite, 'pintar'):
+            sprite.pintar(screen)
+        else:
+            screen.blit(sprite.image, sprite.rect)
 
     # ❤️ Dibujar sangre encima de los enemigos
     for enemigo in enemies_list:
