@@ -13,7 +13,8 @@ from nivel_escudo import BarraEscudo
 from puntuacion import Puntuacion
 from billetera import Billetera
 from condicion_victoria import CondicionVictoria
-from screen_inicio import mostrar_pantalla_inicio
+from screen_inicio import mostrar_pantalla_inicio    
+from trampa_explosiva import TrampaExplosiva
 
 pygame.init()
 pygame.mixer.init()
@@ -22,6 +23,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Zombie Vs Ninja")
 clock = pygame.time.Clock()
 
+TRAP_DROP_CHANCE = 0.25
 
 # Cargar y reproducir música de fondo
 pygame.mixer.music.load("assets/sounds/sonidoDeFondo.mp3")
@@ -59,6 +61,8 @@ enemies_list = pygame.sprite.Group()
 
 all_sprites.add(jugador, corazones)
 
+
+
 # Crear enemigos con posiciones reales
 for i in range(20):
     enemigo = Enemigo(
@@ -76,7 +80,7 @@ for i in range(20):
     all_sprites.add(enemigo)
     enemies_list.add(enemigo)
     
-# 2) Ahora que `enemies_list` ya existe, instanciamos el sistema de niveles
+# 2) Ahora que enemies_list ya existe, instanciamos el sistema de niveles
 from sistema_niveles import SistemaNiveles
 sistema_niveles = SistemaNiveles(jugador, enemies_list)
 
@@ -114,9 +118,16 @@ while running:
             jugador.dinero += monedas
             print(f"¡Obtuviste {monedas} monedas!")
             # Una vez subimos, reajustamos atributos de los enemigos vivos
+            # Posibilidad de soltar una trampa explosiva
+            if random.random() < TRAP_DROP_CHANCE:
+                # Crear trampa en la posición del enemigo muerto
+                trap = TrampaExplosiva(enemy.rect.centerx, enemy.rect.centery)
+                objetos_sueltos.add(trap)
+                all_sprites.add(trap)
+                print("¡Cayó una trampa explosiva!")
             sistema_niveles.actualizar_enemigos()
 
-            # ── Ahora sí, eliminamos al enemigo muerto ──
+            # ── Ahora sí, eliminamos al enemigo muerto ──  
             enemy.kill()
             enemies_list.remove(enemy)
         else:
@@ -126,12 +137,17 @@ while running:
     for enemigo in enemies_list:
         screen.blit(enemigo.image, enemigo.rect)
 
-    # Recolectar objetos
-    for objeto in objetos_sueltos:
-        if jugador.rect.colliderect(objeto.rect):
-            jugador.agregar_al_inventario(objeto)
-            objeto.kill()  # Elimina el objeto de todos los grupos (incluyendo objetos_sueltos y all_sprites)
-            break
+     # ——— Actualizar trampas explosivas y recolectar otros objetos ———
+    current_time = pygame.time.get_ticks()
+    for objeto in list(objetos_sueltos):
+        if isinstance(objeto, TrampaExplosiva):
+            # No eliminarla, solo actualizar su animación y daño
+            objeto.update(current_time, jugador)
+        else:
+            # Sí es un objeto “normal”, lo recolectamos
+            if jugador.rect.colliderect(objeto.rect):
+                jugador.agregar_al_inventario(objeto)
+                objeto.kill()
 
     # Actualizar partículas XP (mueven y suman XP al llegar)
     for particula in grupo_particulas_xp:
@@ -207,4 +223,4 @@ while running:
         cond_victoria.dibujar(screen)
 
 pygame.quit()
-sys.exit()
+sys.exit() 
