@@ -7,8 +7,8 @@
 
 ## Autor
 
-- [@cristian1231a](https://github.com/cristian1231a)
-- [@DanielAngul0](https://github.com/DanielAngul0) 
+- 🤝 [@cristian1231a](https://github.com/cristian1231a)
+- 🤝 [@DanielAngul0](https://github.com/DanielAngul0) 
 
 ## Descripción del Proyecto
 
@@ -104,39 +104,40 @@ El proyecto se dividirá en varias fases, comenzando con la creación de clases 
 - Tesoros: Deben tener diferentes objetos valiosos que se traduzcan en dinero para el personaje al venderlos.
 - Armamento/Defensa: El personaje debe poder comprar/vender para mejorar su ataque/defensa.
 
+---
+
 ## Diseño
 
 ![Diagrama de Clases](./docs/Diagrama_de_clases_UML.png)
 
-## Instalación
+---
 
-1. Clonar el proyecto
+## 🛠️ Instalación
 
+1. Clona el repositorio:
 ```bash
-git clone https://github.com/UR-CC/lpa1-taller-videojuegos.git
+git clone https://github.com/cristian1231a/lpa1-taller-videojuegos.git
 cd lpa1-taller-videojuegos
 ```
+2. Instalar requisitos⚙️
 
-2. Crear y activar entorno virtual
-
+- Python 3.8+
+- Dependencias:
 ```bash
-python -m venv venv
-venv/bin/activate
-```
-
-3. Instalar librerías y dependencias
-
-```bash
+# Dependencias principales
+# pygame => Motor de desarrollo de videojuegos
 pip install -r requirements.txt
 ```
-    
-## Ejecución
+---
 
-1. Ejecutar el proyecto
+## 🖥️ Ejecución
 
+Para ejecutar la aplicación, simplemente ejecuta:
+
+1. Ejecutar el proyecto⚙️
 ```bash
-cd lpa1-taller-videojuegos
 python main.py
+<<<<<<< HEAD
 ```
 
 ## 🎮 Controles
@@ -173,3 +174,6 @@ Slot | Tecla | Función
 > - Los ítems se usan instantáneamente al presionar su tecla numérica correspondiente ⚡  
 > - ¡Recoge objetos derrotando enemigos para llenar tu inventario! 🧳
 
+=======
+```
+>>>>>>> main

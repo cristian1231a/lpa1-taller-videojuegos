@@ -53,7 +53,7 @@ class Tienda:
 
             # 🔢 DATOS DE LOS ITEMS
             nombres_items = ["chickeLive", "lvlUpSword1", "shield1", "shield2"]
-            precios = [2, 3, 1, 4]
+            precios = [100, 400, 200, 600] #PRECIOS DE LOS ITEMS
 
             # 💰 IMAGEN MONEDA
             imagen_moneda = pygame.image.load("assets/img/scene/money/shuriken_money.png").convert_alpha()

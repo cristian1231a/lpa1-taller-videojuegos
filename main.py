@@ -16,6 +16,7 @@ from condicion_victoria import CondicionVictoria
 from screen_inicio import mostrar_pantalla_inicio    
 from trampa_explosiva import TrampaExplosiva
 from tienda import Tienda
+from tesoro import Tesoro
 
 pygame.init()
 pygame.mixer.init()
@@ -30,10 +31,6 @@ TRAP_DROP_CHANCE = 0.25
 pygame.mixer.music.load("assets/sounds/sonidoDeFondo.mp3")
 pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(-1)
-
-
-
-
 
 # Configuración inicial
 escenario = Escenario()
@@ -54,7 +51,7 @@ juego_pausado = False
 icon_atk = pygame.image.load("assets/img/scene/statistics/ninja_attack_icon.png").convert_alpha()
 icon_def = pygame.image.load("assets/img/scene/statistics/ninja_defense_icon.png").convert_alpha()
 
-# Escalado (24×24px)
+# Escalado de íconos
 icon_size = (27, 27)
 icon_atk = pygame.transform.scale(icon_atk, icon_size)
 icon_def = pygame.transform.scale(icon_def, icon_size)
@@ -66,15 +63,11 @@ enemies_list = pygame.sprite.Group()
 
 all_sprites.add(jugador, corazones)
 
-
-
-
-
 # Crear enemigos con posiciones reales
-for i in range(2):
+for i in range(20):
     enemigo = Enemigo(
         x=100 + i * 200,
-        y=HEIGHT - 150,  # Posición sobre la plataforma
+        y=HEIGHT - 150,
         color=(255, 255, 255),
         imagen=pygame.Surface((50, 50)),
         puntos_vida=50,
@@ -82,179 +75,157 @@ for i in range(2):
         defensa=2,
         tipo="Zombie"
     )
-    enemigo.grupo_objetos = objetos_sueltos  # Asignar grupo_objetos
-    enemigo.grupo_todos = all_sprites  # Asignar grupo_todos
+    enemigo.grupo_objetos = objetos_sueltos
+    enemigo.grupo_todos = all_sprites
     all_sprites.add(enemigo)
     enemies_list.add(enemigo)
-    
-# 2) Ahora que enemies_list ya existe, instanciamos el sistema de niveles
+
+# Ahora que enemies_list ya existe, instanciamos el sistema de niveles
 from sistema_niveles import SistemaNiveles
 sistema_niveles = SistemaNiveles(jugador, enemies_list)
 
-game_over = False
-
+# Mostrar pantalla de inicio
 mostrar_pantalla_inicio(screen)
 
 
-#/// COMIENZO DE BUCLE PRINCIPAL///
+
+# Bucle principal
 running = True
 while running:
     # Manejo de eventos
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
-        #evento para poder abrir el inventario con la tecla H   
+    
+        # toggle tienda
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_h:
+            tienda.mostrar = not tienda.mostrar
+            juego_pausado  = tienda.mostrar
+    
+        # ——— Aquí procesamos el uso de inventario ———
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_h:
-                tienda.mostrar = not tienda.mostrar 
-                juego_pausado = tienda.mostrar  # Pausar si la tienda se muestra
-                print("Tienda activada:", tienda.mostrar)
+            if event.key == pygame.K_1:
+                jugador.usar_objeto(0)
+            elif event.key == pygame.K_2:
+                jugador.usar_objeto(1)
+            elif event.key == pygame.K_3:
+                jugador.usar_objeto(2)
+            elif event.key == pygame.K_4:
+                jugador.usar_objeto(3)
+
+    # Si estamos en tienda, no actualizamos el juego
+    if juego_pausado:
+        # Dibujar interfaz de tienda
+        tienda.dibujar_boton(screen)
+        tienda.dibujar_tienda(screen)
+        pygame.display.flip()
+        clock.tick(FPS)
+        continue
+
+    # 1) Verificar victoria antes que nada
+    if cond_victoria.verificar_victoria(areas_exploradas):
+        cond_victoria.dibujar(screen)
+        pygame.display.flip()
+        clock.tick(FPS)
+        
+
+    # Actualizar lógica de juego
+    enemigos_vivos = [e for e in enemies_list if not e.is_dead]
+    jugador.update(enemigos_vivos, escenario, plataforma)
+    corazones.update()
+
+
     
-                
 
-    if not juego_pausado:
-        # Actualización del juego
-        enemigos_vivos = [e for e in enemies_list if not e.is_dead]
-        
-        # Actualizar jugador
-        jugador.update(enemigos_vivos, escenario, plataforma)
-        
-        # Actualizar corazones
-        corazones.update()
+    # Procesar muerte de enemigos y drops
+    for enemy in list(enemies_list):
+        if enemy.is_dead and enemy.death_frame_index >= len(enemy.dead_frames):
+            # XP y posible subida de nivel
+            xp = sistema_niveles.calcular_experiencia(enemy)
+            if sistema_niveles.intentar_subir_nivel(xp):
+                jugador.nivel_xp.agregar_experiencia(xp)
+                print("¡Subiste de nivel!")
+            # Puntuación y dinero
+            jugador.puntuacion += 20
+            monedas = random.randint(2, 8)
+            jugador.dinero += monedas
+            print(f"¡Obtuviste {monedas} monedas!")
+            # Trampa explosiva
+            if random.random() < TRAP_DROP_CHANCE:
+                trap = TrampaExplosiva(enemy.rect.centerx, enemy.rect.centery)
+                objetos_sueltos.add(trap)
+                all_sprites.add(trap)
+            # Tesoro
+            if random.random() < Tesoro.PROBABILIDAD_APARICION:
+                tesoro = Tesoro(enemy.rect.centerx, enemy.rect.centery)
+                objetos_sueltos.add(tesoro)
+                all_sprites.add(tesoro)
+            # Escalado de enemigos vivos
+            sistema_niveles.actualizar_enemigos()
+            # Finalmente eliminar enemigo
+            enemy.kill()
+            enemies_list.remove(enemy)
+        else:
+            enemy.update(jugador if not jugador.is_dead else None)
 
+    # Colisiones con objetos sueltos
+    current_time = pygame.time.get_ticks()
+    for obj in list(objetos_sueltos):
+        if isinstance(obj, TrampaExplosiva):
+            obj.update(current_time, jugador)
+        elif jugador.rect.colliderect(obj.rect):
+            jugador.agregar_al_inventario(obj)
+            obj.kill()
+            objetos_sueltos.remove(obj)
+            all_sprites.remove(obj)
 
-
-        # Actualizar enemigos vivos y limpiar muertos
-        for enemy in list(enemies_list):
-            if enemy.is_dead and enemy.death_frame_index >= len(enemy.dead_frames):
-                # ── Calculamos XP y subimos de nivel si toca ──
-                xp_ganada = sistema_niveles.calcular_experiencia(enemy)
-                if sistema_niveles.intentar_subir_nivel(xp_ganada):
-                    jugador.nivel_xp.agregar_experiencia(xp_ganada)
-                    print("¡Subiste de nivel!")
-                # ── Aumentar puntuación ──
-                jugador.puntuacion += 20
-                # ── Aumentar dinero entre 2 y 8 monedas ──
-                monedas = random.randint(2, 8)
-                jugador.dinero += monedas
-                print(f"¡Obtuviste {monedas} monedas!")
-                # Una vez subimos, reajustamos atributos de los enemigos vivos
-                # Posibilidad de soltar una trampa explosiva
-                if random.random() < TRAP_DROP_CHANCE:
-                    # Crear trampa en la posición del enemigo muerto
-                    trap = TrampaExplosiva(enemy.rect.centerx, enemy.rect.centery)
-                    objetos_sueltos.add(trap)
-                    all_sprites.add(trap)
-                    print("¡Cayó una trampa explosiva!")
-                sistema_niveles.actualizar_enemigos()
-
-                # ── Ahora sí, eliminamos al enemigo muerto ──  
-                enemy.kill()
-                enemies_list.remove(enemy)
-            else:
-                enemy.update(jugador if not jugador.is_dead else None)
-
-                # Dibujar enemigos y sangre
-        for enemigo in enemies_list:
-            screen.blit(enemigo.image, enemigo.rect)
-
-        # ——— Actualizar trampas explosivas y recolectar otros objetos ———
-        current_time = pygame.time.get_ticks()
-        for objeto in list(objetos_sueltos):
-            if isinstance(objeto, TrampaExplosiva):
-                # No eliminarla, solo actualizar su animación y daño
-                objeto.update(current_time, jugador)
-            else:
-                # Sí es un objeto “normal”, lo recolectamos
-                if jugador.rect.colliderect(objeto.rect):
-                    jugador.agregar_al_inventario(objeto)
-                    objeto.kill()
-
-        # Actualizar partículas XP (mueven y suman XP al llegar)
-        for particula in grupo_particulas_xp:
-            particula.update(NivelXP)
-
-        # Dibujar partículas XP
-        grupo_particulas_xp.draw(screen)
+    # Dibujado
+    screen.fill((0, 0, 0))
+    escenario.draw(screen)
+    plataforma.draw(screen)
+    for spr in all_sprites:
+        if hasattr(spr, 'pintar'):
+            spr.pintar(screen)
+        else:
+            screen.blit(spr.image, spr.rect)
+    # Sangre enemigos
+    for e in enemies_list:
+        if e.mostrar_sangre and e.sangre_index > 0:
+            blood = e.sangre_frames[e.sangre_index-1]
+            pos = blood.get_rect(center=e.sangre_pos)
+            screen.blit(blood, pos)
 
 
-        escenario.update(jugador.scroll_x)
-        plataforma.update(jugador.scroll_x)
 
-        # Dibujado
-        screen.fill((0, 0, 0))
-        escenario.draw(screen)
-        plataforma.draw(screen)
-       
+    # Interfaces
+    jugador.dibujar_inventario(screen)
+    jugador.nivel_xp.mostrar_barra_xp(screen, 300)
+    barra_escudo.mostrar_barra_escudo(screen)
+    puntuacion.dibujar(screen)
+    billetera.dibujar(screen)
+    # Estadísticas ninja
+    font = pygame.font.Font(None, 24)
+    txt_atk = font.render(str(jugador.ataque), True, (255,90,30))
+    txt_def = font.render(str(jugador.defensa), True, (100,200,255))
+    # Calcular posiciones...
+    spacing = 80
+    block_w = icon_size[0] + 5 + max(txt_atk.get_width(), txt_def.get_width())
+    total_w = block_w*2 + spacing
+    x0 = (WIDTH - total_w)//2
+    y0 = 50
+    # Dibujar
+    screen.blit(icon_atk, (x0, y0))
+    screen.blit(txt_atk, (x0+icon_size[0]+5, y0+(icon_size[1]-txt_atk.get_height())//2))
+    x1 = x0 + block_w + spacing
+    screen.blit(icon_def, (x1, y0))
+    screen.blit(txt_def, (x1+icon_size[0]+5, y0+(icon_size[1]-txt_def.get_height())//2))
 
-        #  Dibujar todos los sprites generales
-            # escribe esto:
-        for sprite in all_sprites:
-            if hasattr(sprite, 'pintar'):
-                sprite.pintar(screen)
-            else:
-                screen.blit(sprite.image, sprite.rect)
-
-        # ❤️ Dibujar sangre encima de los enemigos
-        for enemigo in enemies_list:
-            if enemigo.mostrar_sangre and enemigo.sangre_index > 0:
-                blood_img = enemigo.sangre_frames[enemigo.sangre_index - 1]
-                blood_rect = blood_img.get_rect(center=enemigo.sangre_pos)
-                screen.blit(blood_img, blood_rect)
-        
-        
-        # Interfaces
-        jugador.dibujar_inventario(screen)
-        jugador.nivel_xp.mostrar_barra_xp(screen, 300)
-        barra_escudo.mostrar_barra_escudo(screen)
-        puntuacion.dibujar(screen)
-        billetera.dibujar(screen)
-        
-        
-        # En tu bucle de dibujado, reemplaza la sección de texto así:
-        fuente    = pygame.font.Font(None, 24)
-        texto_atk = fuente.render(str(jugador.ataque),  True, (255, 90, 30))
-        texto_def = fuente.render(str(jugador.defensa), True, (100, 200, 255))
-
-        # Espacio entre bloques
-        spacing = 80 
-
-        # Ancho de un bloque = icono + separación interna + texto
-        block_width = icon_size[0] + 5 + max(texto_atk.get_width(), texto_def.get_width())
-
-        # Ancho total de los dos bloques + spacing
-        total_width = block_width * 2 + spacing
-
-        # Coordenada X inicial para centrar
-        x_base = (WIDTH - total_width) // 2
-        y_base = 50 # altura fija
-
-        # Dibujar ataque
-        screen.blit(icon_atk,  (x_base,y_base))
-        screen.blit(texto_atk, (x_base + icon_size[0] + 5, y_base + (icon_size[1] - texto_atk.get_height()) // 2))
-
-        # Dibujar defensa, desplazado a la derecha
-        x_def_block = x_base + block_width + spacing
-        screen.blit(icon_def,  (x_def_block,                         y_base))
-        screen.blit(texto_def, (x_def_block + icon_size[0] + 5,      y_base + (icon_size[1] - texto_def.get_height()) // 2))
-        
-        # ——— COMPROBAR VICTORIA/DERROTA ———
-        if cond_victoria.verificar_victoria(areas_exploradas):
-            cond_victoria.dibujar(screen)
-            pygame.display.flip()
-            continue   # salto a siguiente iteración, no redibujar nada más
-
-
+    # Mostrar tienda si activada (botón + UI)
     tienda.dibujar_boton(screen)
-    tienda.dibujar_tienda(screen)    
-    
+    tienda.dibujar_tienda(screen)
 
     pygame.display.flip()
     clock.tick(FPS)
-        
-    if cond_victoria.verificar_victoria(areas_exploradas):
-        cond_victoria.dibujar(screen)
 
 pygame.quit()
-sys.exit() 
+sys.exit()
