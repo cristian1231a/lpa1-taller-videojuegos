@@ -139,3 +139,37 @@ cd lpa1-taller-videojuegos
 python main.py
 ```
 
+## 🎮 Controles
+
+### Teclado
+Tecla | Acción
+---|---
+⬆️ *Flecha Arriba* | Salto (¡Inmunidad mientras estás en el aire! 🛡️)
+⬅️ *Flecha Izquierda* | Movimiento hacia la izquierda
+➡️ *Flecha Derecha* | Movimiento hacia la derecha
+*Z* | Modo Defensa (Bloqueo de daño) 🛡️
+*Espacio* | Ataque Básico ⚔️
+*X* | Abrir/Cerrar Tienda ⏸️🛒 (Pausa el juego)
+
+### Ratón
+Acción | Función
+---|---
+🖱️ *Clic Izquierdo* | Seleccionar/Comprar ítems en la Tienda ✅
+
+### Inventario 🎒
+Slot | Tecla | Función
+---|---|---
+1 | *1* | Primer ítem del inventario
+2 | *2* | Segundo ítem del inventario
+3 | *3* | Tercer ítem del inventario
+4 | *4* | Cuarto ítem del inventario
+
+> 💡 Notas importantes:  
+> - Defenderse *(Z)* Reduce el daño recibido *a la mitad* mientras bloqueas 🛡️
+> - Al abrir la tienda (*X*) el juego se pausa automáticamente ⏸️  
+> - Los ítems de la tienda solo son interactuables con el ratón 🖱️  
+> - ¡El salto (*⬆️*) te da inmunidad temporal contra ataques! 🛡️
+> - El inventario tiene 4 slots accesibles con las teclas *1-4* (parte superior del teclado) 🔢  
+> - Los ítems se usan instantáneamente al presionar su tecla numérica correspondiente ⚡  
+> - ¡Recoge objetos derrotando enemigos para llenar tu inventario! 🧳
+
