@@ -292,34 +292,37 @@ class Jugador(Personaje):
 
 
     def recibir_daño(self, dano: int):
+        # 0) Si está defendiendo, reducimos el daño a la mitad
+        if self.is_defending and dano > 0:
+            dano = dano // 2
+            print(f"¡Bloqueo! Daño reducido a {dano}.")
+    
         # inmune si salta o está muerto
         if self.is_dead or self.is_jumping:
             return
-
+    
         # Si tiene escudo, reduce el daño del escudo primero
         if self.escudo > 0:
             if dano < self.escudo:
-                self.escudo -= dano  # Reducir el escudo por el daño recibido
+                self.escudo -= dano
                 print(f"[ESCUDO] Escudo: {self.escudo}/{self.escudo_max}")
-                dano = 0  # No hay daño restante, ya se absorbió todo el daño con el escudo
+                dano = 0
             else:
-                # Si el daño es mayor que el escudo, se reduce el escudo a 0 y el resto va a la vida
                 dano -= self.escudo
                 self.escudo = 0
                 print(f"[ESCUDO] Escudo agotado. Escudo: {self.escudo}/{self.escudo_max}")
-
+    
         # Si no queda escudo, reducir los puntos de vida
         if dano > 0:
             self.puntos_vida = max(0, self.puntos_vida - dano)
-            # registramos para mostrarlo
-            self.last_damage = dano
+            self.last_damage  = dano
             self.damage_timer = 60
             self.damage_color = (255,0,0)
             print(f"[DAÑO] Salud: {self.puntos_vida}/{self.puntos_vida_max} | Total recibido: {dano}")
-
-        # Si se quedó sin vida, el jugador muere
+    
         if self.puntos_vida == 0:
             self.morir()
+
 
     def morir(self):
         if not self.is_dead:
