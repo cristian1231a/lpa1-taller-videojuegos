@@ -201,7 +201,7 @@ class Enemigo(Personaje):
         self.sonido_zombie_death1.play()
 
         # ── Soltar poción de vida con probabilidad del 30% ──
-        if random.random() < 0.3:
+        if random.random() < 0.2:
             pocion = PocionVida()  # Crear una nueva poción
             pocion.rect.center = self.rect.center  # Colocar la poción en la posición del enemigo
 

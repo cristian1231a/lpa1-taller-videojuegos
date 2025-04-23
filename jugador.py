@@ -263,21 +263,6 @@ class Jugador(Personaje):
                     SistemaCombate.calcular_daño(self, enemy)
                     self.daño_aplicado = True  # ← se aplica daño solo una vez
 
-
-
-        # En tu ciclo principal del juego, dentro del bucle de eventos:
-        # Captura la entrada del teclado para usar objetos
-        keys = pygame.key.get_pressed()
-        
-        if keys[pygame.K_1]:  # Si presionas '1'
-            self.usar_objeto(0)  # Usar el objeto en la ranura 1
-        elif keys[pygame.K_2]:  # Si presionas '2'
-            self.usar_objeto(1)  # Usar el objeto en la ranura 2
-        elif keys[pygame.K_3]:  # Si presionas '3'
-            self.usar_objeto(2)  # Usar el objeto en la ranura 3
-        elif keys[pygame.K_4]:  # Si presionas '4'
-            self.usar_objeto(3)  # Usar el objeto en la ranura 4
-
     def atacar(self):
         self.is_attacking = True
         self.frame_count = 0
@@ -410,19 +395,12 @@ class Jugador(Personaje):
        
     def usar_objeto(self, index):
         if index < len(self.inventario):
-            item = self.inventario[index]  # Obtener el item según el índice
-
-            print(f"Usando objeto en slot {index + 1}: {item}")  # Mensaje de depuración
-
-            # Llamar al método usar del objeto (si existe)
+            item = self.inventario[index]
             if hasattr(item, 'usar'):
-                item.usar(self)  # El jugador es el objetivo aquí
-                print(f"Usando {item} en {self}.")  # Mensaje de depuración
-
-            # Si el objeto es consumible, lo eliminamos del inventario
-            if hasattr(item, 'es_consumible') and item.es_consumible:
-                # Eliminar el objeto después de usarlo
+                item.usar(self)    # aquí se aplica el efecto y se self.kill()
+            # si es consumible, lo quitamos del inventario
+            if getattr(item, 'es_consumible', False):
                 self.inventario.pop(index)
-                print(f"Objeto {item} eliminado del inventario")  # Mensaje de depuración
+                print(f"Objeto consumible usado y eliminado del inventario")
         else:
             print("Índice fuera de rango, no hay objeto en ese slot.")
