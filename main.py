@@ -87,6 +87,8 @@ sistema_niveles = SistemaNiveles(jugador, enemies_list)
 # Mostrar pantalla de inicio
 mostrar_pantalla_inicio(screen)
 
+
+
 # Bucle principal
 running = True
 while running:
@@ -125,12 +127,15 @@ while running:
         cond_victoria.dibujar(screen)
         pygame.display.flip()
         clock.tick(FPS)
-        continue
+        
 
     # Actualizar lógica de juego
     enemigos_vivos = [e for e in enemies_list if not e.is_dead]
     jugador.update(enemigos_vivos, escenario, plataforma)
     corazones.update()
+
+
+    
 
     # Procesar muerte de enemigos y drops
     for enemy in list(enemies_list):
@@ -189,6 +194,8 @@ while running:
             blood = e.sangre_frames[e.sangre_index-1]
             pos = blood.get_rect(center=e.sangre_pos)
             screen.blit(blood, pos)
+
+
 
     # Interfaces
     jugador.dibujar_inventario(screen)

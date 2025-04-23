@@ -7,6 +7,7 @@ from nivel_xp import NivelXP
 
 class Jugador(Personaje):
     def __init__(self):
+
         self.walk_frames = [
             pygame.image.load(f"assets/img/player/walk/Walk{i}.png").convert()
             for i in range(1, 9)
@@ -24,17 +25,18 @@ class Jugador(Personaje):
             pygame.image.load(f"assets/img/player/protection/protection{i}.png").convert()
             for i in range(1, 3)   # asumo 2 frames: protection1.png y protection2.png
         ]
+
+        # Carga animación de muerte
+        self.death_frames = [
+            pygame.image.load(f"assets/img/player/dead/dead{i}.png").convert()
+            for i in range(1, 7)   # asumo 2 frames: dead.png 
+        ]
+
+
         for f in self.protect_frames:
             f.set_colorkey((0, 0, 0))
 
-        sheet = pygame.image.load("assets/img/player/Dead.png").convert()
-        sheet.set_colorkey((0, 0, 0))
-        sw, sh = sheet.get_size()
-        num_frames = sw // sh
-        self.death_frames = []
-        for i in range(num_frames):
-            frame = sheet.subsurface(pygame.Rect(i * sh, 0, sh, sh)).copy()
-            self.death_frames.append(frame)
+
 
         for frame in self.walk_frames + self.jump_frames + self.attack_frames + self.death_frames:
             frame.set_colorkey((0, 0, 0))
@@ -120,6 +122,8 @@ class Jugador(Personaje):
         self.dinero = 0
         self.capas_defensa = 0
         self.puntos_vida_max = puntos_vida_inicial
+
+
 
     def obtener_hitbox_ataque(self):
         extension = 20
@@ -324,7 +328,8 @@ class Jugador(Personaje):
             self.death_frame_timer = 0
             self.death_position = self.rect.copy()
             self.sonido_player_death.play()
-        print("El jugador ha sido derrotado.")
+        
+            print("El jugador ha sido derrotado.")
 
     def pintar(self, screen):
         screen.blit(self.image, self.rect)
@@ -404,3 +409,4 @@ class Jugador(Personaje):
                 print(f"Objeto consumible usado y eliminado del inventario")
         else:
             print("Índice fuera de rango, no hay objeto en ese slot.")
+
