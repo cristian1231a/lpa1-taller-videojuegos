@@ -19,24 +19,21 @@ class Tienda:
         self.fuente = pygame.font.SysFont("Arial", 20)
         self.mostrar = False
 
-        
-
-       
 
 
     def dibujar_boton(self, screen):
         # 🎨 DIBUJAR EL BOTÓN DE TIENDA EN PANTALLA
         pygame.draw.rect(screen, (50, 50, 50), self.rect)  # Fondo del botón
         pygame.draw.rect(screen, (200, 200, 200), self.rect, 2)  # Borde
-        texto = self.fuente.render("SHOP", True, (255, 255, 255))  # Texto del botón
+        texto = self.fuente.render("TIENDA", True, (255, 255, 255))  # Texto del botón
         texto_rect = texto.get_rect(center=self.rect.center)
         screen.blit(texto, texto_rect)
 
 
-        # Texto adicional debajo (Press H)
-        texto_press_h = self.fuente.render("Press (H)", True, (255, 255, 255))  # Texto adicional
-        texto_press_h_rect = texto_press_h.get_rect(center=(self.rect.centerx, self.rect.bottom + 10))  # Ajustar posición
-        screen.blit(texto_press_h, texto_press_h_rect)
+        # Texto adicional debajo (Presiona X)
+        texto_press_x = self.fuente.render("Presiona X", True, (255, 255, 255))  # Texto adicional
+        texto_press_x_rect = texto_press_x.get_rect(center=(self.rect.centerx, self.rect.bottom + 10))  # Ajustar posición
+        screen.blit(texto_press_x, texto_press_x_rect)
 
  
 
