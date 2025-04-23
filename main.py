@@ -98,7 +98,7 @@ while running:
             running = False
     
         # toggle tienda
-        elif event.type == pygame.KEYDOWN and event.key == pygame.K_h:
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_x:
             tienda.mostrar = not tienda.mostrar
             juego_pausado  = tienda.mostrar
     
