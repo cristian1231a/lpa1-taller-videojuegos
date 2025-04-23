@@ -10,7 +10,7 @@ class SistemaNiveles:
         self.jugador = jugador
         self.grupo_enemigos = grupo_enemigos
         self.experiencia_para_siguiente = 30  # XP inicial requerida
-        self.escalador = EscaladoEnemigos(jugador.nivel_xp.nivel, 0.21) 
+        self.escalador = EscaladoEnemigos(jugador.nivel_xp.nivel, 0.27) 
 
     def calcular_experiencia(self, enemigo) -> int:
         """Calcula XP otorgada por derrotar a un enemigo."""
@@ -20,9 +20,9 @@ class SistemaNiveles:
 
     def mejorar_atributos(self):
         # Aumenta vida máxima, ataque y defensa
-        self.jugador.puntos_vida_max += 10
+        self.jugador.puntos_vida_max += 11
         self.jugador.ataque += 9
-        self.jugador.defensa += 11
+        self.jugador.defensa += 13
         # Curar al máximo
         self.curar_puntos_vida()
         # Actualizar escalador con nuevo nivel

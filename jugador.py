@@ -410,19 +410,12 @@ class Jugador(Personaje):
        
     def usar_objeto(self, index):
         if index < len(self.inventario):
-            item = self.inventario[index]  # Obtener el item según el índice
-
-            print(f"Usando objeto en slot {index + 1}: {item}")  # Mensaje de depuración
-
-            # Llamar al método usar del objeto (si existe)
+            item = self.inventario[index]
             if hasattr(item, 'usar'):
-                item.usar(self)  # El jugador es el objetivo aquí
-                print(f"Usando {item} en {self}.")  # Mensaje de depuración
-
-            # Si el objeto es consumible, lo eliminamos del inventario
-            if hasattr(item, 'es_consumible') and item.es_consumible:
-                # Eliminar el objeto después de usarlo
+                item.usar(self)    # aquí se aplica el efecto y se self.kill()
+            # si es consumible, lo quitamos del inventario
+            if getattr(item, 'es_consumible', False):
                 self.inventario.pop(index)
-                print(f"Objeto {item} eliminado del inventario")  # Mensaje de depuración
+                print(f"Objeto consumible usado y eliminado del inventario")
         else:
             print("Índice fuera de rango, no hay objeto en ese slot.")
