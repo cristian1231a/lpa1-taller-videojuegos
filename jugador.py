@@ -263,21 +263,6 @@ class Jugador(Personaje):
                     SistemaCombate.calcular_daño(self, enemy)
                     self.daño_aplicado = True  # ← se aplica daño solo una vez
 
-
-
-        # En tu ciclo principal del juego, dentro del bucle de eventos:
-        # Captura la entrada del teclado para usar objetos
-        keys = pygame.key.get_pressed()
-        
-        if keys[pygame.K_1]:  # Si presionas '1'
-            self.usar_objeto(0)  # Usar el objeto en la ranura 1
-        elif keys[pygame.K_2]:  # Si presionas '2'
-            self.usar_objeto(1)  # Usar el objeto en la ranura 2
-        elif keys[pygame.K_3]:  # Si presionas '3'
-            self.usar_objeto(2)  # Usar el objeto en la ranura 3
-        elif keys[pygame.K_4]:  # Si presionas '4'
-            self.usar_objeto(3)  # Usar el objeto en la ranura 4
-
     def atacar(self):
         self.is_attacking = True
         self.frame_count = 0

@@ -20,7 +20,7 @@ class SistemaNiveles:
 
     def mejorar_atributos(self):
         # Aumenta vida máxima, ataque y defensa
-        self.jugador.puntos_vida_max += 11
+        self.jugador.puntos_vida_max += 10
         self.jugador.ataque += 9
         self.jugador.defensa += 13
         # Curar al máximo

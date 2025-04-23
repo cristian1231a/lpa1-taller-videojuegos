@@ -94,11 +94,22 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+    
+        # toggle tienda
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_h:
+            tienda.mostrar = not tienda.mostrar
+            juego_pausado  = tienda.mostrar
+    
+        # ——— Aquí procesamos el uso de inventario ———
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_h:
-                tienda.mostrar = not tienda.mostrar
-                juego_pausado = tienda.mostrar
-                print("Tienda activada:", tienda.mostrar)
+            if event.key == pygame.K_1:
+                jugador.usar_objeto(0)
+            elif event.key == pygame.K_2:
+                jugador.usar_objeto(1)
+            elif event.key == pygame.K_3:
+                jugador.usar_objeto(2)
+            elif event.key == pygame.K_4:
+                jugador.usar_objeto(3)
 
     # Si estamos en tienda, no actualizamos el juego
     if juego_pausado:
