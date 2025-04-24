@@ -137,9 +137,8 @@ Para ejecutar la aplicación, simplemente ejecuta:
 1. Ejecutar el proyecto⚙️
 ```bash
 python main.py
-<<<<<<< HEAD
 ```
-
+---
 ## 🎮 Controles
 
 ### Teclado
@@ -169,11 +168,7 @@ Slot | Tecla | Función
 > - Defenderse *(Z)* Reduce el daño recibido *a la mitad* mientras bloqueas 🛡️
 > - Al abrir la tienda (*X*) el juego se pausa automáticamente ⏸️  
 > - Los ítems de la tienda solo son interactuables con el ratón 🖱️  
-> - ¡El salto (*⬆️*) te da inmunidad temporal contra ataques! 🛡️
+> - ¡El salto (⬆️) te da inmunidad temporal contra ataques! 🛡️
 > - El inventario tiene 4 slots accesibles con las teclas *1-4* (parte superior del teclado) 🔢  
 > - Los ítems se usan instantáneamente al presionar su tecla numérica correspondiente ⚡  
 > - ¡Recoge objetos derrotando enemigos para llenar tu inventario! 🧳
-
-=======
-```
->>>>>>> main
