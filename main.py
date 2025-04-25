@@ -17,11 +17,13 @@ from screen_inicio import mostrar_pantalla_inicio
 from trampa_explosiva import TrampaExplosiva
 from tienda import Tienda
 from tesoro import Tesoro
+from niveles import cargar_todos_los_niveles
 
 pygame.init()
 pygame.mixer.init()
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+SCROLL_MARGIN = 200   # debe coincidir con el de Jugador
 pygame.display.set_caption("Zombie Vs Ninja")
 clock = pygame.time.Clock()
 
@@ -42,10 +44,24 @@ grupo_particulas_xp = pygame.sprite.Group()
 puntuacion = Puntuacion(jugador)
 billetera = Billetera(jugador)
 nivel = jugador.nivel_xp
-cond_victoria = CondicionVictoria(jugador, exploracion_requerida=5, puntaje_requerido=400)
+niveles = cargar_todos_los_niveles() # Lista de niveles existentes
+cond_victoria = CondicionVictoria(jugador, exploracion_requerida=3, puntaje_requerido=400)
 areas_exploradas = 0  # Lógica para incrementarlo cuando el jugador avance de área
 tienda = Tienda(WIDTH, HEIGHT, jugador)
 juego_pausado = False
+
+# Inicializamos la variable de fin del juego en False
+juego_terminado = False
+
+# Cargar niveles
+BASE_FLOOR_HEIGHT = niveles[0].floor_height # Altura base en todos los niveles
+nivel_actual = 0
+nivel = niveles[nivel_actual]
+
+# Establecemos que la condición de victoria por exploración se cumpla al terminar el tercer nivel
+exploracion_requerida = len(niveles)  # Es decir, después de completar el tercer nivel
+
+exploracion_requerida
 
 # Carga de íconos
 icon_atk = pygame.image.load("assets/img/scene/statistics/ninja_attack_icon.png").convert_alpha()
@@ -61,7 +77,7 @@ objetos_sueltos = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 enemies_list = pygame.sprite.Group()
 
-all_sprites.add(jugador, corazones)
+all_sprites.add(jugador)
 
 # Crear enemigos con posiciones reales
 for i in range(20):
@@ -87,7 +103,8 @@ sistema_niveles = SistemaNiveles(jugador, enemies_list)
 # Mostrar pantalla de inicio
 mostrar_pantalla_inicio(screen)
 
-
+# Impresiones de condicion de victoria por consola:
+mensaje_exploracion_impreso = False
 
 # Bucle principal
 running = True
@@ -96,14 +113,15 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    
-        # toggle tienda
+
+        # ——— toggle tienda — sólo si el jugador sigue con vida ———
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_x:
-            tienda.mostrar = not tienda.mostrar
-            juego_pausado  = tienda.mostrar
-    
-        # ——— Aquí procesamos el uso de inventario ———
-        elif event.type == pygame.KEYDOWN:
+            if jugador.puntos_vida > 0:                               # ← NUEVO
+                tienda.mostrar = not tienda.mostrar
+                juego_pausado  = tienda.mostrar
+
+        # ——— Uso de inventario — sólo si el jugador sigue con vida ——
+        elif event.type == pygame.KEYDOWN and jugador.puntos_vida > 0:  # ← NUEVO
             if event.key == pygame.K_1:
                 jugador.usar_objeto(0)
             elif event.key == pygame.K_2:
@@ -122,19 +140,25 @@ while running:
         clock.tick(FPS)
         continue
 
-    # 1) Verificar victoria antes que nada
     if cond_victoria.verificar_victoria(areas_exploradas):
         cond_victoria.dibujar(screen)
         pygame.display.flip()
         clock.tick(FPS)
         
 
-    # Actualizar lógica de juego
+    # Actualizar lógica de juego (colisiones, animaciones…)
     enemigos_vivos = [e for e in enemies_list if not e.is_dead]
-    jugador.update(enemigos_vivos, escenario, plataforma)
+    # Pasamos el objeto nivel como 'escenario' y como 'plataforma'
+    jugador.update(enemigos_vivos, nivel, nivel)
+    
     corazones.update()
 
-
+    # ——— Cámara siempre centrada en el jugador (dentro de los límites) ———
+    # Calculamos una cámara que intente dejar al jugador en el centro de la pantalla:
+    offset = jugador.rect.centerx - WIDTH // 2
+    # La limitamos para que no se salga del nivel:
+    offset = max(0, min(offset, nivel.max_scroll))
+    nivel.scroll_x = offset
     
 
     # Procesar muerte de enemigos y drops
@@ -179,25 +203,35 @@ while running:
             objetos_sueltos.remove(obj)
             all_sprites.remove(obj)
 
-    # Dibujado
     screen.fill((0, 0, 0))
-    escenario.draw(screen)
-    plataforma.draw(screen)
+    nivel.draw(screen)
+    # ——— Dibujar sprites compensando el scroll ———
     for spr in all_sprites:
+        # calculamos la posición en pantalla restando scroll_x
+        draw_pos = (spr.rect.x - nivel.scroll_x, spr.rect.y)
         if hasattr(spr, 'pintar'):
+            # temporalmente movemos su rect, pintamos, y lo restauramos
+            orig_rect = spr.rect.copy()
+            spr.rect.topleft = draw_pos
             spr.pintar(screen)
+            spr.rect = orig_rect
         else:
-            screen.blit(spr.image, spr.rect)
-    # Sangre enemigos
+            screen.blit(spr.image, draw_pos)
+    # ❤️ Dibujar sangre encima de los enemigos
     for e in enemies_list:
         if e.mostrar_sangre and e.sangre_index > 0:
             blood = e.sangre_frames[e.sangre_index-1]
-            pos = blood.get_rect(center=e.sangre_pos)
+            # e.sangre_pos está en coordenadas del mundo, así que le aplicamos scroll:
+            screen_x, screen_y = e.sangre_pos
+            screen_x -= nivel.scroll_x
+            # recreamos el rect centrado en la posición en pantalla
+            pos = blood.get_rect(center=(screen_x, screen_y))
             screen.blit(blood, pos)
-
-
+    
 
     # Interfaces
+    corazones.update()         
+    screen.blit(corazones.image, corazones.rect)
     jugador.dibujar_inventario(screen)
     jugador.nivel_xp.mostrar_barra_xp(screen, 300)
     barra_escudo.mostrar_barra_escudo(screen)
@@ -223,6 +257,49 @@ while running:
     # Mostrar tienda si activada (botón + UI)
     tienda.dibujar_boton(screen)
     tienda.dibujar_tienda(screen)
+
+    # ——— Cambio de nivel al llegar al final del mundo ———
+    world_width = nivel.background.get_width()
+    
+    if nivel_actual == 2 and jugador.rect.x >= world_width - jugador.rect.width - 100:
+        # Marcamos la victoria por exploración
+        cond_victoria.victoria_exploracion = True
+        if cond_victoria.victoria_exploracion and not mensaje_exploracion_impreso:
+            print("¡¡¡ Felicidades, has escapado de la horda de Zombies !!!")
+            mensaje_exploracion_impreso = True
+        
+    if jugador.rect.x >= world_width - jugador.rect.width:
+        nivel_actual += 1
+        if nivel_actual < len(niveles):
+            # Asigna el nuevo nivel
+            nivel = niveles[nivel_actual]
+            # Reset scroll y posición del jugador
+            nivel.scroll_x = 0
+            jugador.rect.x = 0
+            jugador.rect.bottom = HEIGHT - BASE_FLOOR_HEIGHT
+            jugador.speed_y = 0
+        else:
+            
+            # Fin del último nivel: mostrar pantalla de victoria por exploración o puntaje
+            exploracion_actual = nivel_actual + 1  # o la variable que estés usando
+            mostrar_victoria = True
+            fin_timer = 0
+            while mostrar_victoria:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        mostrar_victoria = False
+
+                screen.fill((0, 0, 0))
+                cond_victoria.dibujar(screen)
+                pygame.display.flip()
+                clock.tick(60)
+                
+                fin_timer += 1
+                if fin_timer > 5:  # Segundos a 60 FPS antes de cerrar el juego
+                    mostrar_victoria = False
+
+            running = False
+
 
     pygame.display.flip()
     clock.tick(FPS)
