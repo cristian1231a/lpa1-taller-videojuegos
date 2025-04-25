@@ -150,24 +150,33 @@ class Jugador(Personaje):
                         self.image = self.death_frames[-1]
             return
 
+        # —————————————————————
+        # Movimiento horizontal unificado
         keystate = pygame.key.get_pressed()
-        self.speed_x = 0
-        self.scroll_x = 0
-        SCROLL_MARGIN = 200  # Límite a partir del cual se hace scroll
+        MOVE_SPEED = 3   # píxeles por frame
 
         if keystate[pygame.K_LEFT]:
-            self.speed_x = -1
+            self.speed_x = -MOVE_SPEED
             self.facing_right = False
-            if self.rect.centerx > SCROLL_MARGIN or escenario.scroll_x <= 0:
-                self.rect.x += self.speed_x  # Mover jugador
-         
-
-        if keystate[pygame.K_RIGHT]:
-            self.speed_x = 1
+        elif keystate[pygame.K_RIGHT]:
+            self.speed_x = MOVE_SPEED
             self.facing_right = True
-            if self.rect.centerx < WIDTH - SCROLL_MARGIN or escenario.scroll_x >= escenario.max_scroll:
-             self.rect.x += self.speed_x  # Mover jugador
-       
+        else:
+            self.speed_x = 0
+
+        # Aplica un único desplazamiento horizontal
+        self.rect.x += self.speed_x
+
+        # Colisión horizontal con enemigos
+        for enemy in enemies_list:
+            if self.rect.colliderect(enemy.rect):
+                dif = enemy.rect.centerx - self.rect.centerx
+                if self.speed_x > 0 and dif > 0:
+                    self.rect.right = enemy.rect.left
+                elif self.speed_x < 0 and dif < 0:
+                    self.rect.left = enemy.rect.right
+        # —————————————————————
+
 
 
         # Invocara al metodo esquivar en el salto
@@ -195,7 +204,6 @@ class Jugador(Personaje):
         # Guardar el estado actual de Z para la siguiente iteración
         self._z_was_pressed = z_pressed
 
-        self.rect.x += self.speed_x
         for enemy in enemies_list:
             if self.rect.colliderect(enemy.rect):
                 dif = enemy.rect.centerx - self.rect.centerx
@@ -204,21 +212,35 @@ class Jugador(Personaje):
                 elif self.speed_x < 0 and dif < 0:
                     self.rect.left = enemy.rect.right
 
+        # Movimiento vertical
         self.rect.y += self.speed_y
         if not self.on_ground:
             self.speed_y += self.gravity
-        if self.rect.bottom >= 600 - 10:
-            self.rect.bottom = 600 - 10
+        
+        # ajustamos el máximo según el nivel actual (escenario.floor_height)
+        ground_y = HEIGHT - escenario.floor_height
+        if self.rect.bottom >= ground_y:
+            self.rect.bottom = ground_y
             self.speed_y = 0
             self.on_ground = True
             self.is_jumping = False
 
-        if self.rect.right > 800:
-            self.rect.right = 800
-        if self.rect.left < 0:
-            self.rect.left = 0
+            # Sólo bloqueamos el movimiento si la cámara no puede desplazarse más
+        # (es decir, estamos en el inicio o final del nivel)
+        # 'escenario' aquí es en realidad tu objeto Nivel
+        world_width = escenario.background.get_width()
 
         self.frame_count += 1
+        
+        # ——— Clamp de posición en coordenadas del mundo ———
+        world_width = escenario.background.get_width()
+        # No salirse a la izquierda del mundo
+        if self.rect.left < 0:
+            self.rect.left = 0
+        # No salirse a la derecha del mundo
+        elif self.rect.left > world_width - self.rect.width:
+            self.rect.left = world_width - self.rect.width
+        
         frame = None
         
         if self.is_defending:
