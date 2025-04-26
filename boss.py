@@ -51,9 +51,9 @@ class Boss(Personaje):
         x = self.rect.x
         y = self.rect.y
         color = WHITE
-        puntos_vida = 220
-        ataque = 10
-        defensa = 3 
+        puntos_vida = 350
+        ataque = 50
+        defensa = 30 
         tipo = "Zombie Boss"
         super().__init__(x, y, color, image_initial, puntos_vida, ataque, defensa)
         self.tipo = tipo
@@ -61,8 +61,8 @@ class Boss(Personaje):
         self.image = image_initial
 
         self.facing_right = False
-        self.speed_x = 1.1
-        self.animation_speed = 5
+        self.speed_x = 1.4
+        self.animation_speed = 10
         self.frame_count = 0
 
         #SONIDO DEL EFECTO CUANDO EL ZOMBIE MUERE
@@ -89,10 +89,10 @@ class Boss(Personaje):
 
         self.attacking = False
         self.attack_index = 0
-        self.attack_speed = 8
+        self.attack_speed = 5
         self.attack_count = 0
         self.attack_timer = 0
-        self.attack_delay = 50  # Tiempo en frames entre ataques
+        self.attack_delay = 30  # Tiempo en frames entre ataques
 
         self.dead_frames = [
             pygame.transform.scale(
@@ -130,7 +130,7 @@ class Boss(Personaje):
         if player is None or player.is_dead:
             return  # No hacer nada si el jugador está muerto
         
-        rango_ataque = 50
+        rango_ataque = 60
         distancia_horizontal = abs(self.rect.centerx - player.rect.centerx)
 
         if distancia_horizontal <= rango_ataque:

@@ -26,7 +26,7 @@ class Tienda:
         # 🔢 LISTA DE ITEMS (clave y precio)
         self.items = [
             {"key": "chickeLive", "label": "Muslo Pollo", "precio": 100},
-            {"key": "lvlUpSword1", "label": "Espada Cazadora de Demonios", "precio": 400},
+            {"key": "lvlUpSword1", "label": "Espada Cazadora de Demonios", "precio": 1300},
             {"key": "shield1", "label": "Proteccion Basica", "precio": 200},
             {"key": "shield2", "label": "Proteccion Avanzada", "precio": 600},
         ]
