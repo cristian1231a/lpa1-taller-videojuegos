@@ -4,6 +4,7 @@ from personaje import Personaje
 from sistema_combate import SistemaCombate
 from configuracion import WIDTH, HEIGHT
 from nivel_xp import NivelXP
+from pocion_vida import PocionVida
 
 class Jugador(Personaje):
     def __init__(self):
@@ -129,7 +130,7 @@ class Jugador(Personaje):
         self.experiencia = 0
         self.nivel_xp = NivelXP()
         self.inventario = []  # Lista de inventario
-        self.dinero = 0
+        self.dinero = 200
         self.capas_defensa = 0
         self.puntos_vida_max = puntos_vida_inicial
 
@@ -444,6 +445,10 @@ class Jugador(Personaje):
     def usar_objeto(self, index):
         if index < len(self.inventario):
             item = self.inventario[index]
+            if isinstance(item, PocionVida):
+                if self.puntos_vida >= self.puntos_vida_max:
+                    print("⚠️ Tu vida ya está al máximo. No es necesario usar el Muslo de Pollo.")
+                    return  # salimos sin consumirla
             if hasattr(item, 'usar'):
                 item.usar(self)    # aquí se aplica el efecto y se self.kill()
             # si es consumible, lo quitamos del inventario
