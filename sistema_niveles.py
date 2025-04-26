@@ -1,5 +1,6 @@
 from escalado_enemigos import EscaladoEnemigos
 from typing import List
+from boss import Boss
 
 
 class SistemaNiveles:
@@ -38,6 +39,9 @@ class SistemaNiveles:
         """Aplica escalado a todos los enemigos según nivel del jugador."""
         factor = self.escalador.calcular_escalado()
         for enemigo in self.grupo_enemigos:
+            # Si es instancia de Boss, saltamos el escalado
+            if isinstance(enemigo, Boss):
+                continue
             enemigo.puntos_vida = int(enemigo.puntos_vida * factor)
             enemigo.ataque     = int(enemigo.ataque     * factor)
             enemigo.defensa    = int(enemigo.defensa    * factor)
