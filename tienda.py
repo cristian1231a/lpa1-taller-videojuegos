@@ -49,9 +49,18 @@ class Tienda:
         title = self.fuente.render("TIENDA ABIERTA", True, (255,255,255))
         screen.blit(title, (t_rect.x + 20, t_rect.y + 20))
 
-        # >>> Instrucción de uso del ratón <<<
+        # >>> Instrucción de uso del ratón --> Comprar <-- <<<
         hint = self.fuente.render("(Usa el MOUSE *Clic Izquierdo* para comprar en la tienda)", True, (255,255,255))
         screen.blit(hint, (t_rect.x + 20, t_rect.y + 50))
+        
+        # >>> Instrucción de uso del ratón --> Vender <-- <<<
+        # Primera línea
+        hint2a = self.fuente.render("Para vender un Muslo de Pollo del inventario:", True, (219,204,0))
+        screen.blit(hint2a, (t_rect.centerx - hint2a.get_width()//2, t_rect.bottom - 50))
+
+        # Segunda línea
+        hint2b = self.fuente.render("Haz doble *Clic Izquierdo* en el slot del inventario", True, (219,204,0))
+        screen.blit(hint2b, (t_rect.centerx - hint2b.get_width()//2, t_rect.bottom - 30))
 
         # Slots centrados
         slot_w, slot_h, esp = 100, 100, 20

@@ -1,4 +1,5 @@
 import pygame
+import time
 from entidad import Entidad
 from personaje import Personaje
 from sistema_combate import SistemaCombate
@@ -120,6 +121,9 @@ class Jugador(Personaje):
         self.defend_frame_delay = 8  # controla velocidad de la animación de bloqueo
         # NUEVO: para detectar solo el flanco de bajada/subida de Z
         self._z_was_pressed = False
+        
+        self.last_click_time  = 0     # ← Para controlar el tiempo entre clics
+        self.last_clicked_slot = None  # ← Para saber qué slot fue clickeado
         
         self.has_demon_sword = False
         
@@ -457,4 +461,26 @@ class Jugador(Personaje):
                 print(f"Objeto consumible usado y eliminado del inventario")
         else:
             print("Índice fuera de rango, no hay objeto en ese slot.")
+            
+    
+    def vender(self, slot_index: int):
+        """Vende 1 Muslo de Pollo si haces doble‐clic sobre el mismo slot en ≤0.4s."""
+        ahora = time.time()
+        dt = ahora - self.last_click_time
+        # ¿mismo slot y segundo clic rápido?
+        if slot_index == self.last_clicked_slot and dt <= 2:
+            # comprobamos que en ese slot haya una poción
+            if slot_index < len(self.inventario) and isinstance(self.inventario[slot_index], PocionVida):
+                self.inventario.pop(slot_index)
+                self.dinero += 20
+                print(f"🍗 Vendiste un Muslo de Pollo por 20 Monedas Ninja. Monedas: {self.dinero}")
+            else:
+                print("📦 No hay Muslo de Pollo en ese slot para vender.")
+            # reseteamos
+            self.last_click_time  = 0     # ← Para controlar el tiempo entre clics
+            self.last_clicked_slot = None  # ← Para saber qué slot fue clickeado
+        else:
+            # primer clic: guardamos tiempo y slot
+            self.last_clicked_slot = slot_index
+            self.last_click_time = ahora
 
