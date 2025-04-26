@@ -49,6 +49,14 @@ class Jugador(Personaje):
         ataque_inicial = 6
         defensa_inicial = 2
         self.scroll_x = 0
+
+
+        #VARIABLES PARA CONTROLAR LA VELOCIDAD DEL JUGADOR
+        self.MOVE_SPEED = 5 # CONTROLAMOS LA VELOCIDAD DEL JUGADOR
+        self.velocidad_actual = self.MOVE_SPEED
+        self.tiempo_ralentizado = 0  # Tiempo hasta que vuelve a la normalidad
+
+        
         
 
         self.escudo = 25  # Escudo básico, o cualquier valor inicial
@@ -153,13 +161,18 @@ class Jugador(Personaje):
         # —————————————————————
         # Movimiento horizontal unificado
         keystate = pygame.key.get_pressed()
-        MOVE_SPEED = 3   # píxeles por frame
 
-        if keystate[pygame.K_LEFT]:
-            self.speed_x = -MOVE_SPEED
+        # Restaurar velocidad si ya pasó el tiempo
+        if self.tiempo_ralentizado and pygame.time.get_ticks() > self.tiempo_ralentizado:
+            self.velocidad_actual  = self.MOVE_SPEED
+            self.tiempo_ralentizado = 0
+
+
+        if keystate[pygame.K_LEFT]:     
+            self.speed_x = -self.velocidad_actual
             self.facing_right = False
         elif keystate[pygame.K_RIGHT]:
-            self.speed_x = MOVE_SPEED
+            self.speed_x = self.velocidad_actual
             self.facing_right = True
         else:
             self.speed_x = 0

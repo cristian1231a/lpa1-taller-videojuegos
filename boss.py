@@ -5,8 +5,8 @@ from sistema_combate import SistemaCombate
 from pocion_vida import PocionVida  # Ajusta la ruta si es diferente
 
 
-enemy_width = 100
-enemy_height = 180
+enemy_width = 70
+enemy_height = 120
 
 class Boss(Personaje):
     def __init__(self, x, y, color, imagen, puntos_vida, ataque, defensa, tipo):
