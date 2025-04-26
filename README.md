@@ -154,7 +154,7 @@ Tecla | Acción
 ### Ratón
 Acción | Función
 ---|---
-🖱️ *Clic Izquierdo* | Seleccionar/Comprar ítems en la Tienda ✅
+🖱️ *Clic Izquierdo* | Vender items del inventario/Comprar ítems en la Tienda ✅
 
 ### Inventario 🎒
 Slot | Tecla | Función
@@ -168,7 +168,15 @@ Slot | Tecla | Función
 > - Defenderse *(Z)* Reduce el daño recibido *a la mitad* mientras bloqueas 🛡️
 > - Al abrir la tienda (*X*) el juego se pausa automáticamente ⏸️  
 > - Los ítems de la tienda solo son interactuables con el ratón 🖱️  
+> - Para vender "Muslos de Pollo" debes abrir la tienda y posteriormente darle doble click izquierdo al slot del inventario donde este se encuentre 🖱️ 
 > - ¡El salto (⬆️) te da inmunidad temporal contra ataques! 🛡️
 > - El inventario tiene 4 slots accesibles con las teclas *1-4* (parte superior del teclado) 🔢  
 > - Los ítems se usan instantáneamente al presionar su tecla numérica correspondiente ⚡  
+> - Hay probabilidad que al matar a un Zombi recibas como recompensa una bomba💣 si la ves, ¡corre! si estas en su campo de explosion💥 quedaras aturdido por unos segundos y recibiras mucho daño
+> - Hay probabilidad que al matar a un Zombi recibas como recompensa un cofre el cual se guardara automaticamente en tu inventario, usalo para obtener grandes ganancias de Monedas Ninja💰
+> - Hay probabilidad que al matar a un Zombi recibas como recompensa un Muslo de Pollo🍗 recolectalo y este se guardara en tu inventario si tienes slots disponibles, si lo usas obtendras recuperacion de vida❤️
 > - ¡Recoge objetos derrotando enemigos para llenar tu inventario! 🧳
+> - ¡La horda de Zombis se hara mas fuertes a medida que tus estadisticas aumentan!☠️ Procura comprar mejoras para poder hacerles frente🗡️🔥
+> - ✨ ¡Derrotar a cada Zombi te dara 20 puntos ninja, por lo que podras obtener la victoria si derrotas a toda la horda de Zombi y alcanzas 400 de puntuacion!
+> - ✨ ¡Puedes obtener la victoria derrotas al Zombi Jefe!
+> - ✨ ¡Puedes obtener la victoria si pasas por los 3 niveles existentes para escapar de la horda de Zombis!
