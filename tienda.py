@@ -56,11 +56,14 @@ class Tienda:
             imagen_moneda = pygame.image.load("assets/img/scene/money/shuriken_money.png").convert_alpha()
             imagen_moneda = pygame.transform.scale(imagen_moneda, (16, 16))  # Cambiar tamaño aquí
 
-            # 📐 DIMENSIONES Y POSICIÓN DE LOS SLOTS
+            # 📐 DIMENSIONES Y POSICIÓN DE LOS SLOTS (centrados)
             slot_ancho = 100
             slot_alto = 100
             espacio_entre_slots = 20
-            inicio_x = tienda_rect.x + 40
+            num_items = len(nombres_items)
+            total_width = num_items * slot_ancho + (num_items - 1) * espacio_entre_slots
+            # Partimos desde el centro del rectángulo de la tienda
+            inicio_x = tienda_rect.x + (tienda_rect.width - total_width) // 2
             y_slots = tienda_rect.y + 80
 
             # 🖱️ DETECCIÓN DE CLIC
@@ -69,7 +72,8 @@ class Tienda:
 
             for i, nombre in enumerate(nombres_items):
                 # 🔳 DIBUJAR SLOT
-                slot_rect = pygame.Rect(inicio_x + i * (slot_ancho + espacio_entre_slots), y_slots, slot_ancho, slot_alto)
+                slot_x = inicio_x + i * (slot_ancho + espacio_entre_slots)
+                slot_rect = pygame.Rect(slot_x, y_slots, slot_ancho, slot_alto)
                 pygame.draw.rect(screen, (200, 200, 200), slot_rect)  # Fondo slot
                 pygame.draw.rect(screen, (255, 255, 255), slot_rect, 2)  # Borde slot
 
