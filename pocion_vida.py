@@ -17,6 +17,6 @@ class PocionVida(pygame.sprite.Sprite):
 
         if objetivo.puntos_vida < objetivo.puntos_vida_max:
             objetivo.puntos_vida = min(objetivo.puntos_vida + cantidad_cura, objetivo.puntos_vida_max)
-            print("¡Poción usada! Vida restaurada.")
+            print("¡Muslo de Pollo consumido! Vida restaurada.")
         else:
-            print("La vida ya está completa. No se usó la poción.")
+            print("La vida ya está completa. No se usó el Muslo de Pollo.")
