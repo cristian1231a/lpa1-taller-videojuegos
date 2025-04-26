@@ -120,6 +120,8 @@ class Jugador(Personaje):
         # NUEVO: para detectar solo el flanco de bajada/subida de Z
         self._z_was_pressed = False
         
+        self.has_demon_sword = False
+        
         self.puntuacion = 0
         self.puntuacion += 0
 
@@ -296,11 +298,14 @@ class Jugador(Personaje):
             self.image = pygame.transform.flip(frame, True, False) if not self.facing_right else frame
 
         if self.is_attacking:
-            hitbox = self.obtener_hitbox_ataque()
-            for enemy in enemies_list:
-                if hitbox.colliderect(enemy.rect) and not self.daño_aplicado:
-                    SistemaCombate.calcular_daño(self, enemy)
-                    self.daño_aplicado = True  # ← se aplica daño solo una vez
+            if self.is_attacking and not self.daño_aplicado:
+                hitbox = self.obtener_hitbox_ataque()
+                for enemy in enemies_list:
+                    if hitbox.colliderect(enemy.rect):
+                        SistemaCombate.calcular_daño(self, enemy)
+                        self.daño_aplicado = True
+                        if not self.has_demon_sword:
+                            break  # solo golpea al primer enemigo si no tiene la espada
 
     def atacar(self):
         self.is_attacking = True

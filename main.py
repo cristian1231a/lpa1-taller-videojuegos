@@ -161,9 +161,32 @@ while running:
         continue
 
     if cond_victoria.verificar_victoria(areas_exploradas):
+        # Dibujamos el overlay de victoria/derrota
         cond_victoria.dibujar(screen)
+        # ——— Mensaje extra por victoria de puntuación ———
+        if cond_victoria.victoria_puntaje:
+            print("¡¡¡ Felicidades, has alcanzado la puntuación requerida para ganar !!!")
         pygame.display.flip()
         clock.tick(FPS)
+        # ——— Pausa de victoria por puntuación ———
+        if cond_victoria.victoria_puntaje:
+            # Capturamos el último fotograma como fondo
+            fondo_final = screen.copy()
+            mostrando_victoria = True
+            while mostrando_victoria:
+                for evt in pygame.event.get():
+                    if evt.type == pygame.QUIT:
+                        mostrando_victoria = False
+                        running = False
+                    elif evt.type == pygame.KEYDOWN and evt.key == pygame.K_ESCAPE:
+                        mostrando_victoria = False
+                # Volvemos a dibujar fondo + overlay
+                screen.blit(fondo_final, (0, 0))
+                cond_victoria.dibujar(screen)
+                pygame.display.flip()
+                clock.tick(FPS)
+            # Saltamos el resto del frame para no seguir actualizando el juego
+            continue
         
 
     # Actualizar lógica de juego (colisiones, animaciones…)
@@ -206,6 +229,29 @@ while running:
                 all_sprites.add(tesoro)
             # Escalado de enemigos vivos
             sistema_niveles.actualizar_enemigos()
+            # ——— Victoria por eliminar al Boss ———
+            if isinstance(enemy, Boss):
+                # Activamos la victoria por matar al Boss
+                cond_victoria.victoria_puntaje = True
+                # ——— Mensaje extra por victoria al jefe ———
+                print("¡¡¡ Felicidades, has derrotado al Jefe Final !!!")
+                # Capturamos el estado final para mantenerlo de fondo
+                fondo_final = screen.copy()
+                # Entramos en bucle de “pausa de victoria” hasta que el jugador cierre o pulse Esc
+                mostrando_victoria = True
+                while mostrando_victoria:
+                    for evt in pygame.event.get():
+                        if evt.type == pygame.QUIT:
+                            mostrando_victoria = False
+                            running = False
+                        elif evt.type == pygame.KEYDOWN and evt.key == pygame.K_ESCAPE:
+                            mostrando_victoria = False
+                    # Redibujamos el último frame y la pantalla de victoria
+                    screen.blit(fondo_final, (0, 0))
+                    cond_victoria.dibujar(screen)
+                    pygame.display.flip()
+                    clock.tick(FPS)
+                # Al salir de este bucle volvemos al main loop
             # Finalmente eliminar enemigo
             enemy.kill()
             enemies_list.remove(enemy)
