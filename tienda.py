@@ -1,6 +1,6 @@
 import pygame
-
 from billetera import Billetera
+from pocion_vida import PocionVida
 
 class Tienda:
     def __init__(self, ancho_pantalla, alto_pantalla, jugador):
@@ -9,127 +9,157 @@ class Tienda:
         self.alto = 40
         self.jugador = jugador
         self.mostrar = False
-        self.fuente = pygame.font.Font(None, 24)
-
-        # 📌 POSICIONAMIENTO EN EL LADO DERECHO CENTRADO VERTICALMENTE
-        pos_x = ancho_pantalla - self.ancho - 20  # 20px desde el borde derecho
-        pos_y = (alto_pantalla // 2) - (self.alto // 2)  # Centrado vertical
-
-        self.rect = pygame.Rect(pos_x, pos_y, self.ancho, self.alto)
         self.fuente = pygame.font.SysFont("Arial", 20)
-        self.mostrar = False
+        
+        # Encargado de interpretar el mantener presionado el click izquierdo como una sola accion
+        self.click_realizado = False 
 
+        # Marca interna para Espada Cazadora de Demonios
+        if not hasattr(self.jugador, 'has_demon_sword'):
+            self.jugador.has_demon_sword = False
 
+        # 📌 POSICIONAMIENTO DEL BOTÓN
+        pos_x = ancho_pantalla - self.ancho - 20
+        pos_y = (alto_pantalla // 2) - (self.alto // 2)
+        self.rect = pygame.Rect(pos_x, pos_y, self.ancho, self.alto)
+
+        # 🔢 LISTA DE ITEMS (clave y precio)
+        self.items = [
+            {"key": "chickeLive", "label": "Muslo Pollo", "precio": 100},
+            {"key": "lvlUpSword1", "label": "Espada Cazadora de Demonios", "precio": 400},
+            {"key": "shield1", "label": "Proteccion Basica", "precio": 200},
+            {"key": "shield2", "label": "Proteccion Avanzada", "precio": 600},
+        ]
 
     def dibujar_boton(self, screen):
-        # 🎨 DIBUJAR EL BOTÓN DE TIENDA EN PANTALLA
-        pygame.draw.rect(screen, (50, 50, 50), self.rect)  # Fondo del botón
-        pygame.draw.rect(screen, (200, 200, 200), self.rect, 2)  # Borde
-        texto = self.fuente.render("TIENDA", True, (255, 255, 255))  # Texto del botón
-        texto_rect = texto.get_rect(center=self.rect.center)
-        screen.blit(texto, texto_rect)
-
-
-        # Texto adicional debajo (Presiona X)
-        texto_press_x = self.fuente.render("Presiona X", True, (255, 255, 255))  # Texto adicional
-        texto_press_x_rect = texto_press_x.get_rect(center=(self.rect.centerx, self.rect.bottom + 10))  # Ajustar posición
-        screen.blit(texto_press_x, texto_press_x_rect)
-
- 
+        pygame.draw.rect(screen, (50, 50, 50), self.rect)
+        pygame.draw.rect(screen, (200, 200, 200), self.rect, 2)
+        texto = self.fuente.render("TIENDA", True, (255, 255, 255))
+        screen.blit(texto, texto.get_rect(center=self.rect.center))
+        texto_press_x = self.fuente.render("Presiona X", True, (255, 255, 255))
+        screen.blit(texto_press_x, (self.rect.centerx - texto_press_x.get_width()/2, self.rect.bottom + 10))
 
     def dibujar_tienda(self, screen):
-        if self.mostrar:
-            # 📦 DIMENSIONES DEL CUADRO DE TIENDA
-            tienda_rect = pygame.Rect(150, 100, 500, 300)
-            pygame.draw.rect(screen, (80, 80, 120), tienda_rect)  # Fondo
-            pygame.draw.rect(screen, (255, 255, 255), tienda_rect, 3)  # Borde
+        if not self.mostrar:
+            return
+        tienda_rect = pygame.Rect(150, 100, 500, 300)
+        pygame.draw.rect(screen, (80, 80, 120), tienda_rect)
+        pygame.draw.rect(screen, (255, 255, 255), tienda_rect, 3)
+        texto = self.fuente.render("TIENDA ABIERTA", True, (255, 255, 255))
+        screen.blit(texto, (tienda_rect.x + 20, tienda_rect.y + 20))
 
-            # 🛍️ TÍTULO
-            texto = self.fuente.render("TIENDA ABIERTA", True, (255, 255, 255))
-            screen.blit(texto, (tienda_rect.x + 20, tienda_rect.y + 20))
+        # Cálculo centrado de slots
+        slot_w, slot_h, espacio = 100, 100, 20
+        num = len(self.items)
+        total_w = num * slot_w + (num - 1) * espacio
+        start_x = tienda_rect.x + (tienda_rect.width - total_w) // 2
+        y_slots = tienda_rect.y + 80
 
-            # 🔢 DATOS DE LOS ITEMS
-            nombres_items = ["chickeLive", "lvlUpSword1", "shield1", "shield2"]
-            precios = [100, 400, 200, 600] #PRECIOS DE LOS ITEMS
+        imagen_moneda = pygame.image.load("assets/img/scene/money/shuriken_money.png").convert_alpha()
+        imagen_moneda = pygame.transform.scale(imagen_moneda, (16, 16))
+        mouse_pos, mouse_pressed = pygame.mouse.get_pos(), pygame.mouse.get_pressed()
 
-            # 💰 IMAGEN MONEDA
-            imagen_moneda = pygame.image.load("assets/img/scene/money/shuriken_money.png").convert_alpha()
-            imagen_moneda = pygame.transform.scale(imagen_moneda, (16, 16))  # Cambiar tamaño aquí
+        for i, item in enumerate(self.items):
+            x = start_x + i * (slot_w + espacio)
+            slot_rect = pygame.Rect(x, y_slots, slot_w, slot_h)
+            pygame.draw.rect(screen, (200, 200, 200), slot_rect)
+            pygame.draw.rect(screen, (255, 255, 255), slot_rect, 2)
 
-            # 📐 DIMENSIONES Y POSICIÓN DE LOS SLOTS (centrados)
-            slot_ancho = 100
-            slot_alto = 100
-            espacio_entre_slots = 20
-            num_items = len(nombres_items)
-            total_width = num_items * slot_ancho + (num_items - 1) * espacio_entre_slots
-            # Partimos desde el centro del rectángulo de la tienda
-            inicio_x = tienda_rect.x + (tienda_rect.width - total_width) // 2
-            y_slots = tienda_rect.y + 80
+            # Icono
+            icon = pygame.image.load(f"assets/img/scene/items/{item['key']}.png").convert_alpha()
+            icon = pygame.transform.scale(icon, (64, 64))
+            screen.blit(icon, (x + 18, y_slots + 10))
 
-            # 🖱️ DETECCIÓN DE CLIC
-            mouse_pressed = pygame.mouse.get_pressed()
-            mouse_pos = pygame.mouse.get_pos()
+            # Precio
+            screen.blit(imagen_moneda, (x + 10, y_slots + 75))
+            price_txt = self.fuente.render(str(item['precio']), True, (255, 255, 0))
+            screen.blit(price_txt, (x + 35, y_slots + 75))
 
-            for i, nombre in enumerate(nombres_items):
-                # 🔳 DIBUJAR SLOT
-                slot_x = inicio_x + i * (slot_ancho + espacio_entre_slots)
-                slot_rect = pygame.Rect(slot_x, y_slots, slot_ancho, slot_alto)
-                pygame.draw.rect(screen, (200, 200, 200), slot_rect)  # Fondo slot
-                pygame.draw.rect(screen, (255, 255, 255), slot_rect, 2)  # Borde slot
+            # Clic de compra
+            if slot_rect.collidepoint(mouse_pos):
+                if mouse_pressed[0]:
+                    if not self.click_realizado:
+                        self.intentar_compra(item)
+                        self.click_realizado = True
+                else:
+                    self.click_realizado = False
 
-                # 🖼️ DIBUJAR IMAGEN DEL ITEM
-                item_path = f"assets/img/scene/items/{nombre}.png"
-                imagen_item = pygame.image.load(item_path).convert_alpha()
-                imagen_item = pygame.transform.scale(imagen_item, (64, 64))
-                screen.blit(imagen_item, (slot_rect.x + 18, slot_rect.y + 10))
+    def intentar_compra(self, item):
+        key, label, precio = item['key'], item['label'], item['precio']
+        j = self.jugador
 
-                # 💰 DIBUJAR PRECIO CON MONEDA
-                screen.blit(imagen_moneda, (slot_rect.x + 10, slot_rect.y + 75))
-                precio_texto = self.fuente.render(str(precios[i]), True, (255, 255, 0))
-                screen.blit(precio_texto, (slot_rect.x + 35, slot_rect.y + 75))
+        # Recarga de escudo básico
+        if key == 'shield1':
+            # Si tienes escudo avanzado, solo restaura 25 puntos; si básico, restaura completo
+            if j.escudo < j.escudo_max:
+                if j.dinero >= precio:
+                    j.dinero -= precio
+                    restore_amount = 25 if j.escudo_max > 25 else j.escudo_max
+                    j.escudo = min(j.escudo + restore_amount, j.escudo_max)
+                    print(f"🛡️ Escudo restaurado {restore_amount} puntos ({j.escudo}/{j.escudo_max})")
+                else:
+                    print(f"❌ No tienes dinero para recarga ({precio} requerido)")
+            else:
+                print("⚠️ Tu escudo ya está al máximo.")
+            return
 
-                # 🖱️ DETECTAR CLIC Y COMPRAR
-                if slot_rect.collidepoint(mouse_pos) and mouse_pressed[0]:
-                    self.intentar_compra(nombre, precios[i])
+        # Espada de demonios solo una compra
+        if key == 'lvlUpSword1' and j.has_demon_sword:
+            print("⚔️ Ya tienes la Espada Cazadora de Demonios.")
+            return
 
-            # ─ 🛈 Dibujar ícono de información visible y atractivo
-                radio_info = 12
-                centro_info = (slot_rect.centerx, slot_rect.top - 10)
-                pygame.draw.circle(screen, (0, 150, 255), centro_info, radio_info)  # Fondo azul
-                pygame.draw.circle(screen, (255, 255, 255), centro_info, radio_info, 2)  # Borde blanco
+                # shield2 (Protección Avanzada): solo si no está ya lleno
+        if key == 'shield2':
+            if j.escudo_max >= 50 and j.escudo == j.escudo_max:
+                print("⚠️ Tu escudo avanzado ya está al máximo. No es necesaria la compra.")
+                return
+            if j.dinero < precio:
+                print(f"❌ No tienes dinero para {label} ({precio} req.)")
+                return
+            # Descuento y equipar/recargar
+            j.dinero -= precio
+            if j.escudo_max < 50:
+                j.escudo_max = 50
+            j.escudo = j.escudo_max
+            print("🛡️ Escudo avanzado equipado/recargado.")
+            return
 
-                fuente_info = pygame.font.SysFont("arial", 16, bold=True)
-                info_text = fuente_info.render("i", True, (255, 255, 255))  # Texto blanco
-                text_rect = info_text.get_rect(center=centro_info)
-                screen.blit(info_text, text_rect)
+        # Ahora sí verificamos fondos para el resto
+        if j.dinero < precio:
+            print(f"❌ No tienes suficiente dinero para {label} ({precio} req.)")
+            return
+        j.dinero -= precio
+        print(f"✅ Compraste: {label} por {precio} monedas")
 
-                info_rect = pygame.Rect(centro_info[0] - radio_info, centro_info[1] - radio_info, radio_info * 2, radio_info * 2)
+        # Poción: verificar espacio en inventario
+        if key == 'chickeLive':
+            if len(j.inventario) >= 4:
+                print("📦 Inventario lleno. No puedes comprar más Pociones.")
+                return
 
+        if key == 'chickeLive':
+            pocion = PocionVida()
+            pocion.es_consumible = True
+            j.inventario.append(pocion)
+            print("🧪 Poción de vida añadida al inventario.")
 
-    def intentar_compra(self, nombre_item, precio):
-        
+        elif key == 'shield2':
+            # Si ya tienes escudo avanzado y está al máximo, no compras
+            if j.escudo_max >= 50 and j.escudo == j.escudo_max:
+                print("⚠️ Tu escudo avanzado ya está al máximo. No es necesaria la compra.")
+                return
+            # Si no tienes aún escudo avanzado, lo equipas
+            if j.escudo_max < 50:
+                j.escudo_max = 50
+            # En ambos casos (equipar o recargar) llevas escudo al máximo
+            j.escudo = j.escudo_max
+            print("🛡️ Escudo avanzado equipado/recargado.")
+            return
 
-        if self.jugador.dinero >= precio:
-            self.jugador.dinero -= precio
-            
-            print(f"✅ Compraste: {nombre_item} por {precio} monedas")
-            # Aquí podrías agregar el ítem al inventario si quieres
-            # Verificar si el ítem es el escudo avanzado y actualizar
-            if nombre_item == "shield2":
-                if self.jugador.escudo_max < 50:  # Solo actualizar si no tienes ya el escudo avanzado
-                    self.jugador.escudo_max = 50
-                    self.jugador.escudo = 50
-                    print("🛡️ Escudo avanzado equipado.")
-
-                    # Verificar si el ítem es la espada mejorada (lvlUpSword1)
-            elif nombre_item == "lvlUpSword1":
-                # Cambiar la animación de ataque del jugador
-                self.jugador.attack_frames = [
-                    pygame.image.load(f"assets/img/player/attack2/Attack{i}.png").convert()
-                    for i in range(1, 6)  # Se cambian las imágenes de 1 a 5
-                ]
-                print("⚔️ ¡Espada mejorada equipada! La animación de ataque ha cambiado.")
-
-
-        else:
-            print(f"❌ No tienes suficiente dinero para {nombre_item} (Precio: {precio}, Tienes: {self.jugador.dinero})")
+        elif key == 'lvlUpSword1':
+            j.attack_frames = [
+                pygame.image.load(f"assets/img/player/attack2/Attack{i}.png").convert()
+                for i in range(1, 6)
+            ]
+            j.has_demon_sword = True
+            print("⚔️ Espada Cazadora de Demonios equipada. Tus ataques básicos dañarán a todo a su paso")
