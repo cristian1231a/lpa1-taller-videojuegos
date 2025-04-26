@@ -5,6 +5,7 @@ import random
 from configuracion import WIDTH, HEIGHT, FPS
 from jugador import Jugador
 from enemigo import Enemigo
+from boss import Boss
 from escenario import Escenario
 from plataforma import Plataforma
 from corazones import Corazones
@@ -95,6 +96,25 @@ for i in range(20):
     enemigo.grupo_todos = all_sprites
     all_sprites.add(enemigo)
     enemies_list.add(enemigo)
+
+
+    # Crear JEFE FINAL
+for i in range(1):
+    enemigoBoss = Boss(
+        x=100 + i * 200,
+        y=HEIGHT - 150,
+        color=(255, 255, 255),
+        imagen=pygame.Surface((100, 100)),
+        puntos_vida=50,
+        ataque=8,
+        defensa=2,
+        tipo="Zombie Boss"
+    )
+    enemigoBoss.grupo_objetos = objetos_sueltos
+    enemigoBoss.grupo_todos = all_sprites
+    all_sprites.add(enemigoBoss)
+    enemies_list.add(enemigoBoss)
+
 
 # Ahora que enemies_list ya existe, instanciamos el sistema de niveles
 from sistema_niveles import SistemaNiveles
