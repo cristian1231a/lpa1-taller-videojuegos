@@ -45,8 +45,7 @@ grupo_particulas_xp = pygame.sprite.Group()
 puntuacion = Puntuacion(jugador)
 billetera = Billetera(jugador)
 nivel = jugador.nivel_xp
-niveles = cargar_todos_los_niveles() # Lista de niveles existentes
-cond_victoria = CondicionVictoria(jugador, exploracion_requerida=3, puntaje_requerido=400)
+cond_victoria = CondicionVictoria(jugador, exploracion_requerida=3, puntaje_requerido=700)
 areas_exploradas = 0  # Lógica para incrementarlo cuando el jugador avance de área
 tienda = Tienda(WIDTH, HEIGHT, jugador)
 juego_pausado = False
@@ -54,7 +53,8 @@ juego_pausado = False
 # Inicializamos la variable de fin del juego en False
 juego_terminado = False
 
-# Cargar niveles
+# Cargar 
+niveles = cargar_todos_los_niveles() # Lista de niveles existentes
 BASE_FLOOR_HEIGHT = niveles[0].floor_height # Altura base en todos los niveles
 nivel_actual = 0
 nivel = niveles[nivel_actual]
@@ -74,47 +74,14 @@ icon_atk = pygame.transform.scale(icon_atk, icon_size)
 icon_def = pygame.transform.scale(icon_def, icon_size)
 
 # Grupos de sprites
+# Inicialización del primer nivel
 objetos_sueltos = pygame.sprite.Group()
-all_sprites = pygame.sprite.Group()
-enemies_list = pygame.sprite.Group()
+all_sprites     = pygame.sprite.Group()
+enemies_list    = pygame.sprite.Group()
 
+# -> ¡ahora setup del primer nivel!
+nivel.setup_entities(jugador, enemies_list, all_sprites, objetos_sueltos)
 all_sprites.add(jugador)
-
-# Crear enemigos con posiciones reales
-for i in range(20):
-    enemigo = Enemigo(
-        x=100 + i * 200,
-        y=HEIGHT - 150,
-        color=(255, 255, 255),
-        imagen=pygame.Surface((50, 50)),
-        puntos_vida=50,
-        ataque=8,
-        defensa=2,
-        tipo="Zombie"
-    )
-    enemigo.grupo_objetos = objetos_sueltos
-    enemigo.grupo_todos = all_sprites
-    all_sprites.add(enemigo)
-    enemies_list.add(enemigo)
-
-
-    # Crear JEFE FINAL
-for i in range(1):
-    enemigoBoss = Boss(
-        x=100 + i * 200,
-        y=HEIGHT - 150,
-        color=(255, 255, 255),
-        imagen=pygame.Surface((100, 100)),
-        puntos_vida=50,
-        ataque=8,
-        defensa=2,
-        tipo="Zombie Boss"
-    )
-    enemigoBoss.grupo_objetos = objetos_sueltos
-    enemigoBoss.grupo_todos = all_sprites
-    all_sprites.add(enemigoBoss)
-    enemies_list.add(enemigoBoss)
-
 
 # Ahora que enemies_list ya existe, instanciamos el sistema de niveles
 from sistema_niveles import SistemaNiveles
@@ -133,6 +100,7 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+            
             
         # ——— doble‐clic en inventario para vender —— sólo dentro de la tienda ——
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and tienda.mostrar:
@@ -217,7 +185,6 @@ while running:
 
 
         pygame.display.flip()
-        clock.tick(FPS)
         continue
 
     if cond_victoria.verificar_victoria(areas_exploradas):
@@ -263,6 +230,8 @@ while running:
     offset = max(0, min(offset, nivel.max_scroll))
     nivel.scroll_x = offset
     
+    dt = clock.tick(FPS)
+    nivel.update_logic(dt, objetos_sueltos, all_sprites)
 
     # Procesar muerte de enemigos y drops
     for enemy in list(enemies_list):
@@ -396,6 +365,11 @@ while running:
         
     if jugador.rect.x >= world_width - jugador.rect.width:
         nivel_actual += 1
+        nivel = niveles[nivel_actual]
+        enemies_list.empty()
+        objetos_sueltos.empty()
+        all_sprites = pygame.sprite.Group(jugador)   # ó .empty() + add(jugador)
+        nivel.setup_entities(jugador, enemies_list, all_sprites, objetos_sueltos)
         if nivel_actual < len(niveles):
             # Asigna el nuevo nivel
             nivel = niveles[nivel_actual]
@@ -428,7 +402,6 @@ while running:
 
 
     pygame.display.flip()
-    clock.tick(FPS)
 
 pygame.quit()
 sys.exit()
