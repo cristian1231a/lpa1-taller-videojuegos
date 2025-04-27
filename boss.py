@@ -51,9 +51,9 @@ class Boss(Personaje):
         x = self.rect.x
         y = self.rect.y
         color = WHITE
-        puntos_vida = 350
-        ataque = 50
-        defensa = 30 
+        puntos_vida = 400
+        ataque = 120
+        defensa = 45 
         tipo = "Zombie Boss"
         super().__init__(x, y, color, image_initial, puntos_vida, ataque, defensa)
         self.tipo = tipo
@@ -61,7 +61,7 @@ class Boss(Personaje):
         self.image = image_initial
 
         self.facing_right = False
-        self.speed_x = 1.4
+        self.speed_x = 4
         self.animation_speed = 10
         self.frame_count = 0
 
@@ -89,10 +89,10 @@ class Boss(Personaje):
 
         self.attacking = False
         self.attack_index = 0
-        self.attack_speed = 5
+        self.attack_speed = 4
         self.attack_count = 0
         self.attack_timer = 0
-        self.attack_delay = 30  # Tiempo en frames entre ataques
+        self.attack_delay = 25  # Tiempo en frames entre ataques
 
         self.dead_frames = [
             pygame.transform.scale(
