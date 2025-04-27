@@ -1,10 +1,10 @@
 # niveles.py
 import pygame, random
-from plataforma import Plataforma
-from configuracion import WIDTH, HEIGHT
-from enemigo import Enemigo
-from boss import Boss
-from trampa_explosiva import TrampaExplosiva
+from escenarios.plataforma import Plataforma
+from config.configuracion import WIDTH, HEIGHT
+from entidades.enemigo import Enemigo
+from entidades.boss import Boss
+from objetos.trampa_explosiva import TrampaExplosiva
 
 class Nivel:
     def __init__(

@@ -1,7 +1,7 @@
 # tesoro.py
 import pygame
 import random
-from objeto import Objeto
+from objetos.objeto import Objeto
 
 class Tesoro(pygame.sprite.Sprite, Objeto):
     # Probabilidad de que al morir un enemigo suelte un tesoro

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
-from entidad import Entidad
+from entidades.entidad import Entidad
 
 class Area(ABC):
     def __init__(self):

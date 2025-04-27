@@ -1,6 +1,6 @@
-from escalado_enemigos import EscaladoEnemigos
+from sistemas.escalado_enemigos import EscaladoEnemigos
 from typing import List
-from boss import Boss
+from entidades.boss import Boss
 
 
 class SistemaNiveles:

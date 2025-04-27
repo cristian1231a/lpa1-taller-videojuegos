@@ -1,5 +1,5 @@
 import pygame
-from configuracion import WIDTH, HEIGHT
+from config.configuracion import WIDTH, HEIGHT
 
 
 #Antes de iniciar el juego se mostrara una pantalla de inicio

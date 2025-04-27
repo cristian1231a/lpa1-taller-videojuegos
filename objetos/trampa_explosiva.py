@@ -1,5 +1,5 @@
 import pygame
-from objeto import Objeto
+from objetos.objeto import Objeto
 
 class TrampaExplosiva(pygame.sprite.Sprite, Objeto):
     def __init__(self, x: int, y: int):
