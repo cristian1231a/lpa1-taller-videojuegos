@@ -32,9 +32,14 @@ def mostrar_pantalla_inicio(screen):
             pygame.display.flip()
             reloj.tick(60)
 
+            # Manejo de eventos: no cerramos pygame aquí
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                    # Reenviamos QUIT al bucle principal y salimos
+                    pygame.event.post(event)
                     esperando = False
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                    esperando = False
+    
+        # Al salir, volvemos al bucle principal sin cerrar display
+        return
