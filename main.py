@@ -365,25 +365,17 @@ while running:
         
     if jugador.rect.x >= world_width - jugador.rect.width:
         nivel_actual += 1
-        nivel = niveles[nivel_actual]
-        enemies_list.empty()
-        objetos_sueltos.empty()
-        all_sprites = pygame.sprite.Group(jugador)   # ó .empty() + add(jugador)
-        nivel.setup_entities(jugador, enemies_list, all_sprites, objetos_sueltos)
-        if nivel_actual < len(niveles):
-            # Asigna el nuevo nivel
-            nivel = niveles[nivel_actual]
-            # Reset scroll y posición del jugador
-            nivel.scroll_x = 0
-            jugador.rect.x = 0
-            jugador.rect.bottom = HEIGHT - BASE_FLOOR_HEIGHT
-            jugador.speed_y = 0
-        else:
+        areas_exploradas += 1   # ← nuevo: acabas de explorar otra área
+
+        # 1) ¿Nos pasamos del último nivel?
+        if nivel_actual >= len(niveles):
+            # activar victoria por exploración
+            cond_victoria.victoria_exploracion = True
             
-            # Fin del último nivel: mostrar pantalla de victoria por exploración o puntaje
-            exploracion_actual = nivel_actual + 1  # o la variable que estés usando
             mostrar_victoria = True
-            fin_timer = 0
+            fin_timer       = 0
+            duracion_frames = 5 * FPS  # 5 segundos a 60 FPS
+            
             while mostrar_victoria:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -398,7 +390,23 @@ while running:
                 if fin_timer > 5:  # Segundos a 60 FPS antes de cerrar el juego
                     mostrar_victoria = False
 
+            
+            # aquí tu bucle de "pantalla de victoria"…
             running = False
+        else:
+            # 2) todavía hay niveles, los cargamos
+            nivel = niveles[nivel_actual]
+            nivel.scroll_x = 0
+            jugador.rect.x = 0
+            jugador.rect.bottom = HEIGHT - BASE_FLOOR_HEIGHT
+            jugador.speed_y = 0
+
+            # 3) limpiamos y regeneramos entidades
+            enemies_list.empty()
+            objetos_sueltos.empty()
+            all_sprites = pygame.sprite.Group(jugador)
+            nivel.setup_entities(jugador, enemies_list, all_sprites, objetos_sueltos)
+            
 
 
     pygame.display.flip()
