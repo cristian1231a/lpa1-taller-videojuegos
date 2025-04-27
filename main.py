@@ -359,6 +359,7 @@ while running:
     if nivel_actual == 2 and jugador.rect.x >= world_width - jugador.rect.width - 100:
         # Marcamos la victoria por exploración
         cond_victoria.victoria_exploracion = True
+        jugador.inmune = True      # ← aquí lo haces inmune
         if cond_victoria.victoria_exploracion and not mensaje_exploracion_impreso:
             print("¡¡¡ Felicidades, has escapado de la horda de Zombies !!!")
             mensaje_exploracion_impreso = True

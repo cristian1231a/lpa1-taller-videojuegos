@@ -125,6 +125,8 @@ class Jugador(Personaje):
         self.last_click_time  = 0     # ← Para controlar el tiempo entre clics
         self.last_clicked_slot = None  # ← Para saber qué slot fue clickeado
         
+        self.inmune = False    
+        
         self.has_demon_sword = False
         
         self.puntuacion = 0
@@ -337,6 +339,9 @@ class Jugador(Personaje):
 
 
     def recibir_daño(self, dano: int):
+        """Llamado cuando un enemigo o trampa le hace daño."""
+        if self.inmune:
+            return            # no recibe daño
         # 0) Si está defendiendo, reducimos el daño a la mitad
         if self.is_defending and dano > 0:
             dano = dano // 2
