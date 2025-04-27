@@ -81,11 +81,12 @@ class TrampaExplosiva(pygame.sprite.Sprite, Objeto):
                         if dx <= self.explosion_radius and dy <= self.explosion_radius:
                             target.recibir_daño(self.damage)
 
-                                         # Ralentizar por 1 segundo
+                            # Ralentizar por 1 segundo
                             target.velocidad_actual = 0  # o cualquier velocidad lenta
                             target.tiempo_ralentizado = pygame.time.get_ticks() + 2000  # 1000 ms = 1 segundo
                             
                             print(f"{self.nombre} explotó y causó {self.damage} de daño")
+                            print(f"El area de la {self.nombre} te ha aturdido momentáneamente")
                         else:
                             print(f"{self.nombre} explotó sin afectar al jugador")
                         self.damage_applied = True
