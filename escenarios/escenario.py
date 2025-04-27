@@ -1,5 +1,5 @@
 import pygame, random
-from configuracion import WIDTH, HEIGHT
+from config.configuracion import WIDTH, HEIGHT
 
 class Escenario:
     def __init__(self):

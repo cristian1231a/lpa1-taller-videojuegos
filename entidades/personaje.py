@@ -1,7 +1,7 @@
 # personaje.py
 import pygame
 from abc import ABC, abstractmethod
-from entidad import Entidad
+from entidades.entidad import Entidad
 
 class Personaje(Entidad, ABC):  # Añadir ABC como clase padre
     def __init__(self, x: int, y: int, color: tuple, imagen: pygame.Surface, 

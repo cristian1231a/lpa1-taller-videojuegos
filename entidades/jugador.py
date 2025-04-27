@@ -1,11 +1,11 @@
 import pygame
 import time
-from entidad import Entidad
-from personaje import Personaje
-from sistema_combate import SistemaCombate
-from configuracion import WIDTH, HEIGHT
-from nivel_xp import NivelXP
-from pocion_vida import PocionVida
+from entidades.entidad import Entidad
+from entidades.personaje import Personaje
+from sistemas.sistema_combate import SistemaCombate
+from config.configuracion import WIDTH, HEIGHT
+from sistemas.nivel_xp import NivelXP
+from objetos.pocion_vida import PocionVida
 
 class Jugador(Personaje):
     def __init__(self):

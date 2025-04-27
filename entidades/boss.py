@@ -1,8 +1,8 @@
 import pygame, random
-from configuracion import WIDTH, HEIGHT, BLACK, WHITE
-from personaje import Personaje
-from sistema_combate import SistemaCombate
-from pocion_vida import PocionVida  # Ajusta la ruta si es diferente
+from config.configuracion import WIDTH, HEIGHT, BLACK, WHITE
+from entidades.personaje import Personaje
+from sistemas.sistema_combate import SistemaCombate
+from objetos.pocion_vida import PocionVida  # Ajusta la ruta si es diferente
 
 
 enemy_width = 70

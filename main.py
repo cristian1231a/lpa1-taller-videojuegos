@@ -2,23 +2,24 @@
 import pygame
 import sys
 import random
-from configuracion import WIDTH, HEIGHT, FPS
-from jugador import Jugador
-from enemigo import Enemigo
-from boss import Boss
-from escenario import Escenario
-from plataforma import Plataforma
-from corazones import Corazones
-from nivel_xp import NivelXP
-from nivel_escudo import BarraEscudo
-from puntuacion import Puntuacion
-from billetera import Billetera
-from condicion_victoria import CondicionVictoria
-from screen_inicio import mostrar_pantalla_inicio    
-from trampa_explosiva import TrampaExplosiva
-from tienda import Tienda
-from tesoro import Tesoro
-from niveles import cargar_todos_los_niveles
+from config.configuracion import WIDTH, HEIGHT, FPS
+from entidades.jugador import Jugador
+from entidades.enemigo import Enemigo
+from entidades.boss import Boss
+from escenarios.escenario import Escenario
+from escenarios.plataforma import Plataforma
+from ui.corazones import Corazones
+from sistemas.nivel_xp import NivelXP
+from sistemas.nivel_escudo import BarraEscudo
+from ui.puntuacion import Puntuacion
+from objetos.billetera import Billetera
+from sistemas.condicion_victoria import CondicionVictoria
+from ui.screen_inicio import mostrar_pantalla_inicio    
+from objetos.trampa_explosiva import TrampaExplosiva
+from ui.tienda import Tienda
+from objetos.tesoro import Tesoro
+from sistemas.niveles import cargar_todos_los_niveles
+from sistemas.sistema_niveles import SistemaNiveles
 
 pygame.init()
 pygame.mixer.init()
@@ -84,7 +85,6 @@ nivel.setup_entities(jugador, enemies_list, all_sprites, objetos_sueltos)
 all_sprites.add(jugador)
 
 # Ahora que enemies_list ya existe, instanciamos el sistema de niveles
-from sistema_niveles import SistemaNiveles
 sistema_niveles = SistemaNiveles(jugador, enemies_list)
 
 # Mostrar pantalla de inicio

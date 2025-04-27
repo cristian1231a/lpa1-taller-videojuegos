@@ -1,7 +1,7 @@
 # tienda.py
 import pygame
-from billetera import Billetera
-from pocion_vida import PocionVida
+from objetos.billetera import Billetera
+from objetos.pocion_vida import PocionVida
 
 class Tienda:
     def __init__(self, ancho_pantalla, alto_pantalla, jugador):
